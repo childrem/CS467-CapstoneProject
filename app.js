@@ -16,6 +16,9 @@ app.set('view engine', 'handlebars');
 app.set('port', PORT);
 //Implementation for static found here:
 //https://expressjs.com/en/starter/static-files.html
+
+app.use('/adminHome', require('./public/scripts/adminHome.js'));
+
 app.use('/static', express.static('public'));
 
 app.get('/',function(req,res,next){
