@@ -24,7 +24,16 @@ app.get('/',function(req,res,next){
 
 });
 
-
+app.get('/GetUsers',function(req,res){
+  
+  mysql.pool.query("Select * From users", function(err, rows, fields){
+    if(err){
+      next(err);
+      return;
+    }
+    res.status(200).json(rows);
+  });
+});
 
 app.use(function(req,res){
   res.status(404);
