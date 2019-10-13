@@ -18,7 +18,7 @@ app.set('port', PORT);
 //Implementation for static found here:
 //https://expressjs.com/en/starter/static-files.html
 
-app.use('/adminHome', require('./public/scripts/adminHome.js'));
+//app.use('/adminHome', require('./public/scripts/adminHome.js'));
 
 app.use('/static', express.static('public'));
 
@@ -47,6 +47,7 @@ app.get('/SendMail',function(req,res){
     else
       console.log(info);
   });
+  res.status(200);
   
 });
 

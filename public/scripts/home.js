@@ -1,6 +1,17 @@
 $(document).ready(function(){
  
   LoadTable();
+
+  $('#emailButton').on('click', function(e){
+    $("#emailLabel").text('Email Sent.');
+    e.preventDefault();
+    $.ajax({
+      url: "/SendMail", 
+      success: function(result){
+        $("#emailLabel").text('Email Sent.');
+    }});
+  });
+
 });
 
 
