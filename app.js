@@ -5,6 +5,7 @@ var app = express();
 var handlebars = require('express-handlebars').create({defaultLayout:'main'});
 var bodyParser = require('body-parser');
 var mysql = require('./dbcon.js');
+var nodemailer = require('nodemailer');
 
 const PORT = process.env.PORT || 5000
 
@@ -38,6 +39,17 @@ app.get('/GetUsers',function(req,res){
   });
 });
 
+app.get('/SendMail',function(req,res){
+  
+  transporter.sendMail(mailOptions, function (err, info) {
+    if(err)
+      console.log(err)
+    else
+      console.log(info);
+  });
+  
+});
+
 app.use(function(req,res){
   res.status(404);
   res.render('404');
@@ -49,6 +61,23 @@ app.use(function(err, req, res, next){
   res.status(500);
   res.render('500');
 });
+
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+         user: 'cchincinfo@gmail.com',
+         pass: 'E=^8-!@TD&X%mi9*2?YH'
+     }
+ });
+
+ const mailOptions = {
+  from: 'cchincinfo@gmail.com', // sender address
+  to: 'eric.croom@gmail.com', // list of receivers
+  subject: 'Node Mailer Test', // Subject line
+  html: '<p>Testing out this app email.</p>'// plain text body
+};
+
+ 
 
 app.listen(app.get('port'), function(){
   console.log('Express started on http://localhost:' + app.get('port') + '; press Ctrl-C to terminate.');
