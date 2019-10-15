@@ -6,7 +6,9 @@ module.exports = function(){
   // Display the admin homepage
   
   router.get('/', function(req, res){
-        res.render('adminHome');
+        let context = {};
+        context.adminPage = true;
+        res.render('adminHome', context);
     });
     
     

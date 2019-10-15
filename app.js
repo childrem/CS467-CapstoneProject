@@ -20,11 +20,11 @@ app.set('port', PORT);
 
 
 app.use('/adminHome', require('./public/scripts/adminHome.js'));
-app.use('/addAdminUser', require('./public/scripts/addAdminUser.js'));
-app.use('/addGeneralUser', require('./public/scripts/addGeneralUser.js'));
-app.use('/businessIntelligence', require('./public/scripts/businessIntelligence.js'));
-app.use('/viewAdmins', require('./public/scripts/viewAdmins.js'));
-app.use('/viewGeneralUsers', require('./public/scripts/viewGeneralUsers.js'));
+//app.use('/addAdminUser', require('./public/scripts/addAdminUser.js'));
+//app.use('/addGeneralUser', require('./public/scripts/addGeneralUser.js'));
+//app.use('/businessIntelligence', require('./public/scripts/businessIntelligence.js'));
+//app.use('/viewAdmins', require('./public/scripts/viewAdmins.js'));
+//app.use('/viewGeneralUsers', require('./public/scripts/viewGeneralUsers.js'));
 
 
 
