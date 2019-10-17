@@ -16,7 +16,7 @@ module.exports = function(){
         });
     }
   
-  // Display the admin homepage
+  // Display view general users page
   
   router.get('/', function(req, res){
         let callbackCount = 0;  // Keeps track of "setup" functions completing their tasks

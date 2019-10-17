@@ -16,7 +16,7 @@ module.exports = function(){
 
     }
 
-  // Display the admin homepage
+  // Display the view admins page
   
   router.get('/', function(req, res){
         // When page loads, display the admin users
