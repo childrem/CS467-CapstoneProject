@@ -15,6 +15,7 @@ app.use(bodyParser.json());
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', PORT);
+app.set('mysql', mysql);
 //Implementation for static found here:
 //https://expressjs.com/en/starter/static-files.html
 
