@@ -19,7 +19,6 @@ module.exports = function(){
   // Display the admin homepage
   
   router.get('/', function(req, res){
-      console.log("You're in view admins!");
         // When page loads, display the admin users
         var callbackCount = 0;  // Makes sure all of our functions finish before rendering the page with the context
         let context = {};

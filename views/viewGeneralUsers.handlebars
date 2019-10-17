@@ -11,7 +11,17 @@
         </tr>
     </thead>
     <tbody class="text-center">
+        {{#each generalUsers}}
         <tr>
+            <td>{{Username}}</td>
+            <td>{{FullName}}</td>
+            <td>{{TimeCreated}}</td>
+            <td>
+                <button type="button" class="btn btn-primary">Edit</button>
+                <button type="button" class="btn btn-danger">Delete</button>
+            </td>
+        </tr>
+        <!--<tr>
             <td>john@test.com</td>
             <td>John Smith</td>
             <td>Sept 9, 2019</td>
@@ -37,6 +47,7 @@
                 <button type="button" class="btn btn-primary">Edit</button>
                 <button type="button" class="btn btn-danger">Delete</button>
             </td>
-        </tr>
+        </tr> -->
+        {{/each}}
     </tbody>
 </table>
