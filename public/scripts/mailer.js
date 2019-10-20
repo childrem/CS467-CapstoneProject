@@ -12,7 +12,7 @@ module.exports = function(){
   
    this.mailOptions = {
     from: 'cchincinfo@gmail.com', // sender address
-    to: 'eric.croom@gmail.com', // list of receivers
+    to: 'croome@oregonstate.edu', // list of receivers
     subject: 'Node Mailer Test', // Subject line
     html: '<p>Testing out this app email.</p>'// plain text body
   };
