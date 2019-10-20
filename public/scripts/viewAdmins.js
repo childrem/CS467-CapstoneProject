@@ -22,6 +22,7 @@ module.exports = function(){
         // When page loads, display the admin users
         var callbackCount = 0;  // Makes sure all of our functions finish before rendering the page with the context
         let context = {};
+        context.jsscripts = ["deleteAdmin.js"];
         var mysql = req.app.get('mysql');
         getAdmins(res, mysql, context, complete);
         context.adminPage = true;
@@ -33,6 +34,24 @@ module.exports = function(){
         }
     });
     
+
+    // All traffic to this handler will come from our AJAX setup in deleteAdmin.js
+
+    router.delete('/:id', function(req, res){
+        var mysql = req.app.get('mysql');
+        var sql = "DELETE FROM users WHERE id = ?";
+        var inserts = [req.params.id];
+        sql = mysql.pool.query(sql, inserts, function(error, results, fields){
+            if(error){
+                res.write(JSON.stringify(error));
+                res.status(400).end();
+            }
+
+            else{
+                res.status(202).end();      // AJAX function will handle refreshing the table for us
+            }
+        });
+    });
     
     return router;
 }();
