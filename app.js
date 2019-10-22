@@ -27,6 +27,13 @@ app.use('/addGeneralUser', require('./public/scripts/addGeneralUser.js'));
 app.use('/businessIntelligence', require('./public/scripts/businessIntelligence.js'));
 app.use('/viewAdmins', require('./public/scripts/viewAdmins.js'));
 app.use('/viewGeneralUsers', require('./public/scripts/viewGeneralUsers.js'));
+app.use('/userHome', require('./public/scripts/userHome.js'));
+app.use('/editUserInfo', require('./public/scripts/editUserInfo.js'));
+app.use('/createAward', require('./public/scripts/createAward.js'));
+app.use('/awards', require('./public/scripts/awards.js'));
+app.use('/addAwardCategory', require('./public/scripts/addAwardCategory.js'));
+app.use('/currentEmployeeMonth', require('./public/scripts/currentEmployeeMonth.js'));
+app.use('/currentEmployeeYear', require('./public/scripts/currentEmployeeYear.js'));
 
 
 
