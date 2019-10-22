@@ -5,10 +5,19 @@ var app = express();
 var handlebars = require('express-handlebars').create({defaultLayout:'main'});
 var bodyParser = require('body-parser');
 var mysql = require('./dbcon.js');
+var session = require('express-session');
 
 var mailer = require('./public/scripts/mailer.js');
 
 const PORT = process.env.PORT || 5000
+
+app.use(session({
+	secret: 'secret',
+	resave: true,
+	saveUninitialized: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
