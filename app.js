@@ -34,6 +34,7 @@ app.use('/awards', require('./public/scripts/awards.js'));
 app.use('/addAwardCategory', require('./public/scripts/addAwardCategory.js'));
 app.use('/currentEmployeeMonth', require('./public/scripts/currentEmployeeMonth.js'));
 app.use('/currentEmployeeYear', require('./public/scripts/currentEmployeeYear.js'));
+app.use('/forgotPassword', require('./public/scripts/forgotPassword.js'));
 
 
 
