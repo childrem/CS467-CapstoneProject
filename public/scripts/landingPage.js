@@ -11,7 +11,7 @@ router.get('/', function(req, res){
       let context = {};
       context.errorText = req.session.errorMessage;
       res.render('landingPage', context);  // Only render when context is all setup
-     delete req.session.errorText;
+      delete req.session.errorText;
   });
   
 
