@@ -16,8 +16,7 @@ app.use(session({
 	resave: true,
 	saveUninitialized: true
 }));
-app.use(passport.initialize());
-app.use(passport.session());
+
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -36,10 +35,30 @@ app.use('/addGeneralUser', require('./public/scripts/addGeneralUser.js'));
 app.use('/businessIntelligence', require('./public/scripts/businessIntelligence.js'));
 app.use('/viewAdmins', require('./public/scripts/viewAdmins.js'));
 app.use('/viewGeneralUsers', require('./public/scripts/viewGeneralUsers.js'));
+app.use('/', require('./public/scripts/landingPage.js'));
 
 
 
 app.use('/static', express.static('public'));
+
+var admin = function(req, res, next) {
+  if (req.session && req.session.role == 'admin' || req.session.rol == 'superAdmin') {
+    return next();
+  }
+  else {
+    res.send('You do not have access to this page', 404);
+  }
+}
+
+var generalUser = function(req, res, next) {
+  if (req.session && req.session.role == 'general') {
+    return next();
+  }
+  else {
+    res.send('You do not have access to this page', 404);
+  }
+}
+
 
 app.get('/',function(req,res,next){
  
@@ -47,6 +66,68 @@ app.get('/',function(req,res,next){
     res.render('landingPage');
 
 });
+
+app.get('/home', generalUser, function(req,res,next){
+ 
+  res.render('home');
+  
+
+});
+
+
+
+app.get('/logout', function(req, res){
+  req.session.destroy();
+  res.redirect('/');
+})
+
+app.post('/login', function (req, res) {
+  req.session.errorMessage = "";
+  if (!req.body.Email || !req.body.Password) {
+    res.redirect('/', context);
+  }
+  mysql.pool.query("select users.*, roles.role From Users inner join roles on users.role_id = roles.id where users.email = ?", [req.body.Email], function(err, rows, fields){
+    if(err){
+      next(err);
+      return;
+    }
+    
+    //res.status(200).json(rows);
+    if (rows.length == 0) {
+      req.session.errorMessage = "Invalid Login";
+      res.redirect('/');
+    }
+
+    //valid data
+    if (req.body.Password == rows[0].password) {
+      req.session.role = rows[0].role;
+      req.session.user_name = rows[0].user_name;
+      req.session.save();
+      switch (rows[0].role) {
+        case "general":
+          res.redirect('/home')
+          
+          break;
+        case "admin":
+        case "superAdmin":
+            
+            res.redirect('/adminHome');
+          break;
+        default:
+            req.session.errorMessage = "Invalid Login";
+            res.redirect('/');
+          break;
+      }
+     
+    }
+    else {
+      req.session.errorMessage = "Invalid Login";
+      res.redirect('/');
+    }
+  
+    
+  });
+})
 
 app.get('/GetUsers',function(req,res){
   

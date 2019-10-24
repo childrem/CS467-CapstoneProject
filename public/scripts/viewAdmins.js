@@ -23,6 +23,7 @@ module.exports = function(){
         var callbackCount = 0;  // Makes sure all of our functions finish before rendering the page with the context
         let context = {};
         context.jsscripts = ["deleteAdmin.js"];
+        
         var mysql = req.app.get('mysql');
         getAdmins(res, mysql, context, complete);
         context.adminPage = true;

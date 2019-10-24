@@ -8,6 +8,7 @@ module.exports = function(){
   router.get('/', function(req, res){
         let context = {};
         context.adminPage = true;
+       
         res.render('adminHome', context);
     });
     
