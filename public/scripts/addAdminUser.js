@@ -2,6 +2,8 @@ module.exports = function(){
     var express = require('express');
     var router = express.Router();
 
+    var isAdmin = require('../../adminCheck.js');
+
   
     function postAdmin(req, res, mysql, complete) {
         mysql.pool.query("SELECT id FROM roles WHERE role = 'admin';", function(error, results, fields){
@@ -30,7 +32,7 @@ module.exports = function(){
 
   // Display the admin homepage
   
-  router.get('/', function(req, res){
+  router.get('/', isAdmin, function(req, res){
         let context = {};
         context.adminPage = true;
         res.render('addAdminUser', context);
@@ -39,7 +41,7 @@ module.exports = function(){
 
     // When user submits a new admin's information, add it to database and send them back to the admin table
 
-    router.post('/', function(req, res){
+    router.post('/', isAdmin, function(req, res){
         let mysql = req.app.get('mysql');
         let callbackCount = 0;
         postAdmin(req, res, mysql, complete);

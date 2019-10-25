@@ -2,6 +2,8 @@ module.exports = function(){
     var express = require('express');
     var router = express.Router();
 
+    var isAdmin = require('../../adminCheck.js');
+
     // Get general user data to display in table
 
     function getGeneralUsers(res, mysql, context, complete){
@@ -18,7 +20,7 @@ module.exports = function(){
   
   // Display view general users page
   
-  router.get('/', function(req, res){
+  router.get('/', isAdmin, function(req, res){
         let callbackCount = 0;  // Keeps track of "setup" functions completing their tasks
         let context = {};
         let mysql = req.app.get('mysql');
