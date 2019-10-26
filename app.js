@@ -6,6 +6,8 @@ var handlebars = require('express-handlebars').create({defaultLayout:'main'});
 var bodyParser = require('body-parser');
 var mysql = require('./dbcon.js');
 var session = require('express-session');
+var bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 var mailer = require('./public/scripts/mailer.js');
 
@@ -49,25 +51,6 @@ app.use('/forgotPassword', require('./public/scripts/forgotPassword.js'));
 
 app.use('/static', express.static('public'));
 
-var admin = function(req, res, next) {
-  if (req.session && req.session.role == 'admin' || req.session.rol == 'superAdmin') {
-    return next();
-  }
-  else {
-    res.send('You do not have access to this page', 404);
-  }
-}
-
-var generalUser = function(req, res, next) {
-  if (req.session && req.session.role == 'general') {
-    return next();
-  }
-  else {
-    res.send('You do not have access to this page', 404);
-  }
-}
-
-
 app.get('/',function(req,res,next){
  
     //res.render('home');
@@ -75,12 +58,6 @@ app.get('/',function(req,res,next){
 
 });
 
-app.get('/home', generalUser, function(req,res,next){
- 
-  res.render('home');
-  
-
-});
 
 
 //login logout logic and implementation inspired by the following site:
@@ -109,30 +86,37 @@ app.post('/login', function (req, res) {
     }
 
     //valid data
+    bcrypt.compare(req.body.Password, rows[0].password, function (err, result) {
+              if (result == true) {
+                req.session.role = rows[0].role;
+                req.session.user_name = rows[0].user_name;
+                req.session.save();
+                switch (rows[0].role) {
+                  case "general":
+                    res.redirect('/home')
+                    
+                    break;
+                  case "admin":
+                  case "superAdmin":
+                      
+                      res.redirect('/adminHome');
+                    break;
+                  default:
+                      req.session.errorMessage = "Invalid Login";
+                      res.redirect('/');
+                    break;
+                }      
+              } else {
+                req.session.errorMessage = "Invalid Login";
+                res.redirect('/');    
+              }      
+        });
     if (req.body.Password == rows[0].password) {
-      req.session.role = rows[0].role;
-      req.session.user_name = rows[0].user_name;
-      req.session.save();
-      switch (rows[0].role) {
-        case "general":
-          res.redirect('/home')
-          
-          break;
-        case "admin":
-        case "superAdmin":
-            
-            res.redirect('/adminHome');
-          break;
-        default:
-            req.session.errorMessage = "Invalid Login";
-            res.redirect('/');
-          break;
-      }
+      
      
     }
     else {
-      req.session.errorMessage = "Invalid Login";
-      res.redirect('/');
+     
     }
   
     
