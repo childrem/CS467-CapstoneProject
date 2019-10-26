@@ -1,7 +1,6 @@
 module.exports = function(){
     var express = require('express');
-    var isAdmin = require('../../adminCheck.js')
-    var isGeneral = require('../../generalUserCheck.js')
+    var isAdmin = require('../../adminCheck.js');
     var router = express.Router();
 
   

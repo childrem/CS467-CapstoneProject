@@ -2,6 +2,8 @@ module.exports = function(){
     var express = require('express');
     var router = express.Router();
 
+    var isAdmin = require('../../adminCheck.js');
+
 
     function getAdmins(res, mysql, context, complete) {
         mysql.pool.query("SELECT id, role_id, email AS `Username`, date_created AS `TimeCreated` FROM users WHERE role_id = 1;", function(error, results, fields){
@@ -18,7 +20,7 @@ module.exports = function(){
 
   // Display the view admins page
   
-  router.get('/', function(req, res){
+  router.get('/', isAdmin, function(req, res){
         // When page loads, display the admin users
         var callbackCount = 0;  // Makes sure all of our functions finish before rendering the page with the context
         let context = {};
@@ -38,7 +40,7 @@ module.exports = function(){
 
     // All traffic to this handler will come from our AJAX setup in deleteAdmin.js
 
-    router.delete('/:id', function(req, res){
+    router.delete('/:id', isAdmin, function(req, res){
         var mysql = req.app.get('mysql');
         var sql = "DELETE FROM users WHERE id = ?";
         var inserts = [req.params.id];

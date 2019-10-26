@@ -5,6 +5,7 @@ module.exports = function(){
     var bcrypt = require('bcrypt');
     var mysql = require('../../dbcon.js');
     const saltRounds = 10;
+
   
   // Display the admin homepage
   
