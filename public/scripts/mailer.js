@@ -2,6 +2,11 @@ module.exports = function(){
 
   var nodemailer = require('nodemailer');
 
+  this.toEmail = "";
+  this.resetLink = "";
+  this.subject = "";
+  this.html = "";
+
   this.transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -9,17 +14,12 @@ module.exports = function(){
            pass: 'E=^8-!@TD&X%mi9*2?YH'
        }
    });
-  
-   this.mailOptions = {
-    from: 'cchincinfo@gmail.com', // sender address
-    to: 'croome@oregonstate.edu', // list of receivers
-    subject: 'Node Mailer Test', // Subject line
-    html: '<p>Testing out this app email.</p>'// plain text body
-  };
 
-  this.SendMail = function () {
+
+  this.SendMail = function (mailOptions) {
+    // updateMailOptions();
     var sent = false;
-    this.transporter.sendMail(this.mailOptions, function (err, info) {
+    this.transporter.sendMail(mailOptions, function (err, info) {
       if(err)
         console.log(err);
         

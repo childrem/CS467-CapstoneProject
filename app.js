@@ -111,15 +111,7 @@ app.post('/login', function (req, res) {
                 res.redirect('/');    
               }      
         });
-    if (req.body.Password == rows[0].password) {
-      
-     
-    }
-    else {
-     
-    }
-  
-    
+       
   });
 })
 
