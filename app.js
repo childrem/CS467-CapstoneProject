@@ -93,7 +93,7 @@ app.post('/login', function (req, res) {
                 req.session.save();
                 switch (rows[0].role) {
                   case "general":
-                    res.redirect('/home')
+                    res.redirect('/userHome')
                     
                     break;
                   case "admin":
