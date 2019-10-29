@@ -75,43 +75,41 @@ app.post('/login', function (req, res) {
   }
   mysql.pool.query("select users.*, roles.role From Users inner join roles on users.role_id = roles.id where users.email = ?", [req.body.Email], function(err, rows, fields){
     if(err){
-      next(err);
-      return;
+      next(err); 
+	  return;
     }
-    
+
     //res.status(200).json(rows);
     if (rows.length == 0) {
       req.session.errorMessage = "Invalid Login";
       res.redirect('/');
     }
-
-    //valid data
-    bcrypt.compare(req.body.Password, rows[0].password, function (err, result) {
-              if (result == true) {
-                req.session.role = rows[0].role;
-                req.session.user_name = rows[0].user_name;
-                req.session.save();
-                switch (rows[0].role) {
-                  case "general":
-                    res.redirect('/userHome')
-                    
-                    break;
-                  case "admin":
-                  case "superAdmin":
-                      
+	else {
+      //valid data
+      bcrypt.compare(req.body.Password, rows[0].password, function (err, result) {
+                if (result == true) {
+                  req.session.role = rows[0].role;
+                  req.session.user_name = rows[0].user_name;
+                  req.session.save();
+                  switch (rows[0].role) {
+                    case "general":
+                      res.redirect('/userHome')
+                      break;
+                    case "admin":
+                    case "superAdmin":
                       res.redirect('/adminHome');
-                    break;
-                  default:
+                      break;
+                    default:
                       req.session.errorMessage = "Invalid Login";
                       res.redirect('/');
                     break;
-                }      
-              } else {
-                req.session.errorMessage = "Invalid Login";
-                res.redirect('/');    
-              }      
-        });
-       
+                  }      
+                } else {
+                  req.session.errorMessage = "Invalid Login";
+                  res.redirect('/');    
+                }
+	  })			  
+    };   
   });
 })
 
