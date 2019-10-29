@@ -18,36 +18,9 @@
             <td>{{TimeCreated}}</td>
             <td>
                 <button type="button" class="btn btn-primary">Edit</button>
-                <button type="button" class="btn btn-danger">Delete</button>
+                <button type="button" class="btn btn-danger" onclick="deleteGeneralUser({{id}})">Delete</button>
             </td>
         </tr>
-        <!--<tr>
-            <td>john@test.com</td>
-            <td>John Smith</td>
-            <td>Sept 9, 2019</td>
-            <td>
-                <button type="button" class="btn btn-primary">Edit</button>
-                <button type="button" class="btn btn-danger">Delete</button>
-            </td>
-        </tr>
-        <tr>
-            <td>sally@sample.com</td>
-            <td>Sally Sample</td>
-            <td>Oct 2, 2019</td>
-            <td>
-                <button type="button" class="btn btn-primary">Edit</button>
-                <button type="button" class="btn btn-danger">Delete</button>
-            </td>
-        </tr>
-        <tr>
-            <td>test@mctest.com</td>
-            <td>Test McTesterson</td>
-            <td>Oct 9, 2019</td>
-            <td>
-                <button type="button" class="btn btn-primary">Edit</button>
-                <button type="button" class="btn btn-danger">Delete</button>
-            </td>
-        </tr> -->
         {{/each}}
     </tbody>
 </table>
