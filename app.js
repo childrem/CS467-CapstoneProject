@@ -9,8 +9,6 @@ var session = require('express-session');
 var bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-var mailer = require('./public/scripts/mailer.js');
-
 const PORT = process.env.PORT || 5000
 
 app.use(session({
@@ -76,7 +74,8 @@ app.post('/login', function (req, res) {
   }
   mysql.pool.query("select users.*, roles.role From Users inner join roles on users.role_id = roles.id where users.email = ?", [req.body.Email], function(err, rows, fields){
     if(err){
-      next(err); 
+      req.session.errorMessage = "Invalid Login";
+    res.redirect('/');
 	  return;
     }
 
@@ -115,14 +114,6 @@ app.post('/login', function (req, res) {
 })
 
 
-app.get('/SendMail',function(req,res){
-  
-  var myMail = new mailer();
-  myMail.SendMail();
-  
-  res.status(200);
-  
-});
 
 app.use(function(req,res){
   res.status(404);

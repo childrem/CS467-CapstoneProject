@@ -69,6 +69,9 @@ module.exports = function () {
     var buffer = crypt.randomBytes(20);
     var token = buffer.toString('hex');
     var link =  req.headers.host + "/forgotPassword/reset/" + token;
+    if (req.headers.host !== 'localhost:5000') {
+      link = "https://" + link;
+    }
     if (setUserReset(req.body.EmailRecovery, token)) {
       var mail = new mailer();
       var mailOptions = {
