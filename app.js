@@ -38,6 +38,7 @@ app.use('/businessIntelligence', require('./public/scripts/businessIntelligence.
 app.use('/viewAdmins', require('./public/scripts/viewAdmins.js'));
 app.use('/viewGeneralUsers', require('./public/scripts/viewGeneralUsers.js'));
 app.use('/editAdmin', require('./public/scripts/editAdmin.js'));
+app.use('/editGeneralUserAdminSite', require('./public/scripts/editGeneralUserAdminSite.js'));
 app.use('/', require('./public/scripts/landingPage.js'));
 app.use('/userHome', require('./public/scripts/userHome.js'));
 app.use('/editUserInfo', require('./public/scripts/editUserInfo.js'));
