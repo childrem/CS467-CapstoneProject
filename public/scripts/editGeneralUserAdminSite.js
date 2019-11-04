@@ -24,11 +24,28 @@ module.exports = function(){
     }
 
 
+    function editGeneralUser(req, res, mysql, complete) {
+        var sql = "UPDATE users SET email = ?, user_name = ?, signature_path = ? WHERE id = ?";
+        var inserts = [req.body.Email, req.body.user_name, req.body.Signature, req.body.id];
+        sql = mysql.pool.query(sql, inserts, function(error, results, fields) {
+            if(error) {
+                res.write(JSON.stringify(error));
+                res.status(400).end();
+            }
+
+            else {
+                complete();
+            }
+        });
+    }
+
+
     router.get('/:id', isAdmin, function(req, res) {
 
         var callbackCount = 0;
         let context = {};
         context.adminPage = true;
+        context.id = req.params.id;     // Stored in a hidden input field, used later in edit process
         var mysql = req.app.get('mysql');
         getAccountInfo(req, res, mysql, context, complete);
         function complete(){    // Each "setup" function calls this function to signal that it is finished
@@ -39,6 +56,20 @@ module.exports = function(){
         }
     });
 
+
+    // Using POST as method because PUT is not supported by HTML forms
+
+    router.post('/', isAdmin, function(req, res) {
+        let mysql = req.app.get('mysql');
+        var callbackCount = 0;
+        editGeneralUser(req, res, mysql, complete);
+        function complete() {
+            callbackCount++;
+            if(callbackCount >= 1) {
+                res.redirect('/viewGeneralUsers');
+            }
+        }
+    });
 
 
     return router;

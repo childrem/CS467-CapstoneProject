@@ -5,7 +5,7 @@
     <p class="text-center">General users can create awards, change their name, and delete from the database any awards they have previously given</p>
 </div>
 <div class="container justify-content-center w-50 mt-3 card card-body">
-    <form action="/editGeneralUserAdminSite" method="PUT">
+    <form action="/editGeneralUserAdminSite" method="POST">
         <div class="form-group">
             <label for="Email">Email address</label>
             <input type="email" class="form-control" name="Email" id="Email" aria-describedby="emailHelp" value="{{email}}" required>
@@ -19,6 +19,7 @@
             <label for="Signature">Placeholder for Signature</label>
             <input type="text" class="form-control" name="Signature" id="Signature" value="{{signature_path}}" required>
         </div>
+        <input type="hidden" id="id" name="id" value="{{id}}">
         <div class="form-group col-md-12 text-center">
             <button type="submit" class="btn btn-primary">Submit</button>
         </div>
