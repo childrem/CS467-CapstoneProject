@@ -42,6 +42,7 @@ app.use('/editUserInfo', require('./public/scripts/editUserInfo.js'));
 app.use('/createAward', require('./public/scripts/createAward.js'));
 app.use('/awards', require('./public/scripts/awards.js'));
 app.use('/addAwardCategory', require('./public/scripts/addAwardCategory.js'));
+app.use('/currentEmployeeWeek', require('./public/scripts/currentEmployeeWeek.js'));
 app.use('/currentEmployeeMonth', require('./public/scripts/currentEmployeeMonth.js'));
 app.use('/currentEmployeeYear', require('./public/scripts/currentEmployeeYear.js'));
 app.use('/forgotPassword', require('./public/scripts/forgotPassword.js'));
@@ -90,6 +91,7 @@ app.post('/login', function (req, res) {
                 if (result == true) {
                   req.session.role = rows[0].role;
                   req.session.user_name = rows[0].user_name;
+				  req.session.user_id = rows[0].id;
                   req.session.save();
                   switch (rows[0].role) {
                     case "general":
