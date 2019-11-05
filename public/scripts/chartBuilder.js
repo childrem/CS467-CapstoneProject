@@ -1,3 +1,6 @@
+// The structure of the code in this file was inspired by the following:
+// https://stackoverflow.com/questions/44415130/how-can-i-send-information-from-nodejs-server-to-client-side
+
 $(document).ready(function(){
 
     console.log("You're in the client side javascript");
