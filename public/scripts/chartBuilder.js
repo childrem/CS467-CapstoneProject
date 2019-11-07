@@ -3,32 +3,25 @@
 
 $(document).ready(function(){
 
-    console.log("You're in the client side javascript");
+    // Help setting up click event listeners obtained from:
+    // https://stackoverflow.com/questions/1070760/javascript-function-in-href-vs-onclick
 
-    LoadChart();
+    $('#chartOption1').click(function(){generateSampleChart(); return false;});
+    $('#chartOption2').click(function(){generateSampleChart2(); return false;});
 
-    //var req = new XMLHttpRequest();
-    //var url = '/businessIntelligence/chartSample';
 
-    //req.open('GET',url,true);
-    //req.addEventListener('load',onLoad);
-    //req.addEventListener('error',onError);
+    //LoadChart();
 
-    //req.send();
-
-    //function onError() {
-        //console.log('error receiving async AJAX call');
-    //}
 
 });
 
 
-function LoadChart() {
+function LoadChart(chartToLoad) {
 
     console.log("You're in load chart");
 
     var req = new XMLHttpRequest();
-    var url = 'businessIntelligence/chartSample';
+    var url = 'businessIntelligence/' + chartToLoad;
 
     req.open('GET',url,true);
     req.addEventListener('load',onLoad);
@@ -45,6 +38,7 @@ function onLoad() {
     var response = this.responseText;
     console.log(response);
     var parsedResponse = JSON.parse(response);
+
 
     var ctx = document.getElementById('myChart').getContext('2d');
         var myChart = new Chart(ctx, {
@@ -88,4 +82,27 @@ function onLoad() {
 
 function onError() {
     console.log('error receiving async AJAX call');
+}
+
+
+function generateSampleChart() {
+
+    LoadChart("chartSample");
+
+/*
+    $.ajax({
+        url: '/chartSample',
+        type: 'GET',
+        success: function(result){
+            window.location.reload(true);
+        }
+    });
+
+*/
+
+}
+
+
+function generateSampleChart2() {
+    LoadChart("chartSample2");
 }

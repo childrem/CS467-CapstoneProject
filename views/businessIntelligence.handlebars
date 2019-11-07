@@ -4,12 +4,28 @@
     <h1 class="text-center">Business Intelligence</h1>
 </div>
 
+<div class="container text-center" style="margin-top:10px; margin-bottom:10px">
+    <div class="btn-group">
+        <button type="button" class="btn btn-info">Select Chart To Show</button>
+        <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <div class="dropdown-menu text-center">
+            <a class="dropdown-item" id="chartOption1" href="#">Generate Sample Chart</a>
+            <a class="dropdown-item" id="chartOption2" href="#">Generate Sample Chart 2</a>
+            <a class="dropdown-item" href="#">Something else here</a>
+        </div>
+    </div>
+</div>
+
 <!--
 <input type="hidden" id="chartType" value = {{chartType}}>
 <input type="hidden" id="xAxis" value = {{xAxis}}>
 <input type="hidden" id="chartLabel" value = {{chartLabel}}>
 <input type="hidden" id="yAxis" value = {{yAxis}}>
 -->
+
+<!--<input type="hidden" id="generateChart" value="{{displayChart}}"> -->
 
 <div class="container">
     <canvas id="myChart"></canvas>
