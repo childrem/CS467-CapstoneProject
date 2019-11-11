@@ -5,9 +5,22 @@ $(document).ready(function(){
 
     // Help setting up click event listeners obtained from:
     // https://stackoverflow.com/questions/1070760/javascript-function-in-href-vs-onclick
+    // Help with clearing the canvas element so hover would work obtained from:
+    // https://stackoverflow.com/questions/24815851/how-to-clear-a-chart-from-a-canvas-so-that-hover-events-cannot-be-triggered
 
-    $('#chartOption1').click(function(){generateSampleChart(); return false;});
-    $('#chartOption2').click(function(){generateSampleChart2(); return false;});
+    $('#chartOption1').click(function(){
+        $('#myChart').remove();     // Clear out old chart if present
+        $('#chartContainer').append('<canvas id="myChart"></canvas>');  // Put a new canvas on the page
+        generateAwardCount(); 
+        return false;
+    });
+
+    $('#chartOption2').click(function(){
+        $('#myChart').remove();     // Clear out old chart if present
+        $('#chartContainer').append('<canvas id="myChart"></canvas>');  // Put a new canvas on the page
+        generateSampleChart2(); 
+        return false;
+    });
 
 
     //LoadChart();
@@ -85,9 +98,9 @@ function onError() {
 }
 
 
-function generateSampleChart() {
+function generateAwardCount() {
 
-    LoadChart("chartSample");
+    LoadChart("awardCount");
 
 /*
     $.ajax({
