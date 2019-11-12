@@ -18,7 +18,7 @@ module.exports = function(){
 
             else {
                 var generalUserRoleId = results[0].id;
-                var sqlForGeneralUsers = "SELECT id, user_name FROM users WHERE role_id = ? ORDER BY id";
+                var sqlForGeneralUsers = "SELECT id, email FROM users WHERE role_id = ? ORDER BY id";
                 var inserts = [generalUserRoleId];
                 
                 sqlForGeneralUsers = mysql.pool.query(sqlForGeneralUsers, inserts, function(error, results, fields) {
@@ -30,12 +30,40 @@ module.exports = function(){
                     else {
                         var xAxisValues = [];
                         for(item of results){
-                            xAxisValues.push(item.user_name);
+                            xAxisValues.push(item.email);
                         }
 
                         dataToSend.xAxis = xAxisValues;
+                        dataToSend.label = "# of awards created";
 
-                        complete();
+                        // Now need to get the number of awards each user created
+
+                        var sqlForAwardCount = "SELECT COUNT(*) AS `awardCount` FROM awards WHERE user_id = ?";
+                        var yAxisValues = [];
+                        var numQueriesDone = 0;
+                        var numQueriesNeeded = xAxisValues.length;
+
+                        for(item of results){
+                            var inserts = [item.id];
+                            mysql.pool.query(sqlForAwardCount, inserts, function(error, results, fields) {
+                                if(error){
+                                    res.write(JSON.stringify(error));
+                                    res.end();
+                                }
+
+                                else {
+                                    yAxisValues.push(results[0].awardCount);
+                                    numQueriesDone++;
+                                    if(numQueriesDone === numQueriesNeeded){
+                                        dataToSend.yAxis = yAxisValues;
+        
+                                        complete();
+                                    }
+                                }
+                            });
+
+                        }
+
                     }
                 });
             }
