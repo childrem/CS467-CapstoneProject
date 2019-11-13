@@ -52,7 +52,7 @@ module.exports = function(){
 
                         // Now need to get the number of awards each user created
 
-                        var sqlForAwardCount = "SELECT u.id, u.email AS `email`, a.user_id AS `user_id`, COUNT(*) AS `awardCount` FROM awards a INNER JOIN users u ON u.id = a.user_id WHERE a.user_id = ?;"
+                        var sqlForAwardCount = "SELECT u.id, u.email AS `email`, a.user_id AS `user_id`, COUNT(*) AS `awardCount` FROM awards a INNER JOIN users u ON u.id = a.user_id WHERE a.user_id = ?;";
 
                         var yAxisValues = [];
                         for(let i=0; i < xAxisValues.length; i++){
@@ -94,6 +94,81 @@ module.exports = function(){
 
     }
 
+    function getAmountOfEachType(res, mysql, dataToSend, complete) {
+
+        // Get the list of award types from the database for the X-axis
+
+        mysql.pool.query("SELECT id, award_type FROM award_types;", function(error, results, fields){
+            if(error){
+                res.write(JSON.stringify(error));
+                res.end();
+            }
+
+            else {
+                var xAxisValues = [];
+                for(item of results){
+                    xAxisValues.push(item.award_type);
+                }
+
+                dataToSend.xAxis = xAxisValues;
+                dataToSend.label = "# of awards of each type";
+                dataToSend.backgroundColor = [];
+                dataToSend.borderColor = [];
+
+                for(let i=0; i < xAxisValues.length; i++){
+                    if(i % 2 === 0) {
+                        dataToSend.backgroundColor.push('rgba(255, 99, 132, 0.2)');
+                        dataToSend.borderColor.push('rgba(255, 99, 132, 1)');
+                    }
+
+                    else{
+                        dataToSend.backgroundColor.push('rgba(54, 162, 235, 0.2)');
+                        dataToSend.borderColor.push('rgba(54, 162, 235, 1)');
+                    }
+                }
+
+                //console.log(xAxisValues);
+
+                // Now we need the number of each award type in the database
+
+                var sqlForAwardTypeCount = "SELECT awdt.id, awdt.award_type AS `award_type_name`, a.award_type_id AS `award_type`, COUNT(*) AS `typeCount` FROM awards a INNER JOIN award_types awdt ON awdt.id = a.award_type_id WHERE a.award_type_id = ?;";
+
+                var yAxisValues = [];
+                for(let i=0; i < xAxisValues.length; i++){
+                    yAxisValues[i] = 0;
+                }
+
+                var numQueriesDone = 0;
+                var numQueriesNeeded = xAxisValues.length;
+
+                for(item of results){
+                    var inserts = [item.id];
+                    mysql.pool.query(sqlForAwardTypeCount, inserts, function(error, results, fields) {
+                        if(error){
+                            res.write(JSON.stringify(error));
+                            res.end();
+                        }
+
+                        else {
+                            var locationToAdd = xAxisValues.indexOf(results[0].award_type_name);
+                            yAxisValues[locationToAdd] = results[0].typeCount;
+                            numQueriesDone++;
+                            if(numQueriesDone === numQueriesNeeded){
+                                dataToSend.yAxis = yAxisValues;
+                                
+
+                                complete();
+                            }
+                        }
+                    });
+
+                }
+            }
+        });
+
+
+    }
+
   
   // Display the business intelligence page (came from regular browser call - NOT chart request)
   
@@ -126,9 +201,22 @@ module.exports = function(){
 
 
     router.get('/amountOfEachType', isAdmin, function(req, res) {
-        var dataToSend = {"xAxis": ["user1", "user2", "user3", "user4", "user5", "user6"]};
-        var formattedDataToSend = JSON.stringify(dataToSend);
-        res.send(formattedDataToSend);
+        var callbackCount = 0;
+        var dataToSend = {};
+        var mysql = req.app.get('mysql');
+        getAmountOfEachType(res, mysql, dataToSend, complete);
+
+        function complete() {
+            callbackCount++;
+            if (callbackCount >= 1) {
+                var formattedDataToSend = JSON.stringify(dataToSend);
+                res.send(formattedDataToSend);
+            }
+        }
+
+        //var dataToSend = {"xAxis": ["user1", "user2", "user3", "user4", "user5", "user6"]};
+        //var formattedDataToSend = JSON.stringify(dataToSend);
+        //res.send(formattedDataToSend);
     });
     
     
