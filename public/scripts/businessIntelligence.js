@@ -38,10 +38,18 @@ module.exports = function(){
 
                         // Now need to get the number of awards each user created
 
-                        var sqlForAwardCount = "SELECT COUNT(*) AS `awardCount` FROM awards WHERE user_id = ?";
+                        //var sqlForAwardCount = "SELECT COUNT(*) AS `awardCount` FROM awards WHERE user_id = ?";
+                        var sqlForAwardCount = "SELECT u.id, u.email AS `email`, a.user_id AS `user_id`, COUNT(*) AS `awardCount` FROM awards a INNER JOIN users u ON u.id = a.user_id WHERE a.user_id = ?;"
+                        //var yAxisPlaceholder = xAxisValues;
                         var yAxisValues = [];
+                        for(let i=0; i < xAxisValues.length; i++){
+                            yAxisValues[i] = 0;
+                        }
+
                         var numQueriesDone = 0;
                         var numQueriesNeeded = xAxisValues.length;
+
+                        //var locationToAdd = 0;
 
                         for(item of results){
                             var inserts = [item.id];
@@ -52,10 +60,17 @@ module.exports = function(){
                                 }
 
                                 else {
-                                    yAxisValues.push(results[0].awardCount);
+                                    var locationToAdd = xAxisValues.indexOf(results[0].email);
+                                    yAxisValues[locationToAdd] = results[0].awardCount;
+                                    console.log(item.email);
+                                    console.log(locationToAdd);
+                                    console.log(yAxisValues[locationToAdd]);
+                                    //locationToAdd++;
+                                    //yAxisValues.push(results[0].awardCount);
                                     numQueriesDone++;
                                     if(numQueriesDone === numQueriesNeeded){
                                         dataToSend.yAxis = yAxisValues;
+                                        console.log(yAxisValues);
         
                                         complete();
                                     }
@@ -79,19 +94,6 @@ module.exports = function(){
         context.adminPage = true;
         context.jsscripts = ["chartBuilder.js"];
 
-
-        //var dataToSend = {"generateChart": "false"}     // we don't generate a chart when they first get to the page
-        //var formattedDataToSend = JSON.stringify(dataToSend);
-        //res.send(formattedDataToSend);
-
-        //let data = {"xAxis": ["test1", "test2", "test3", "test4", "test5", "test6"]};
-        //res.json(data);
-
-        //context.chartType = 'bar';
-        //context.xAxis = ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'];
-        //context.chartLabel = '# of Votes';
-        //context.yAxis = [12, 19, 3, 5, 2, 3];
-
         res.render('businessIntelligence', context);
     });
 
@@ -103,7 +105,6 @@ module.exports = function(){
         var dataToSend = {};
         var mysql = req.app.get('mysql');
         getAwardCountData(res, mysql, dataToSend, complete);
-        //var dataToSend = {"xAxis": ["test1", "test2", "test3", "test4", "test5", "test6"]};
 
         function complete() {   // Send formatted data when everything in dataToSend is correctly set up
             callbackCount++;
@@ -113,12 +114,10 @@ module.exports = function(){
             }
         }
 
-        //var formattedDataToSend = JSON.stringify(dataToSend);
-        //res.send(formattedDataToSend);
     });
 
 
-    router.get('/chartSample2', isAdmin, function(req, res) {
+    router.get('/amountOfEachType', isAdmin, function(req, res) {
         var dataToSend = {"xAxis": ["user1", "user2", "user3", "user4", "user5", "user6"]};
         var formattedDataToSend = JSON.stringify(dataToSend);
         res.send(formattedDataToSend);

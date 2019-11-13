@@ -18,7 +18,7 @@ $(document).ready(function(){
     $('#chartOption2').click(function(){
         $('#myChart').remove();     // Clear out old chart if present
         $('#chartContainer').append('<canvas id="myChart"></canvas>');  // Put a new canvas on the page
-        generateSampleChart2(); 
+        generateAmountofEachType(); 
         return false;
     });
 
@@ -116,6 +116,6 @@ function generateAwardCount() {
 }
 
 
-function generateSampleChart2() {
-    LoadChart("chartSample2");
+function generateAmountofEachType() {
+    LoadChart("amountOfEachType");
 }
