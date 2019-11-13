@@ -8,6 +8,12 @@ $(document).ready(function(){
     // Help with clearing the canvas element so hover would work obtained from:
     // https://stackoverflow.com/questions/24815851/how-to-clear-a-chart-from-a-canvas-so-that-hover-events-cannot-be-triggered
 
+    $('#noChart').click(function(){
+        $('#myChart').remove();     // Clear out old chart if present
+        $('#chartContainer').append('<canvas id="myChart"></canvas>');  // Put a new canvas on the page
+        return false;
+    });
+    
     $('#chartOption1').click(function(){
         $('#myChart').remove();     // Clear out old chart if present
         $('#chartContainer').append('<canvas id="myChart"></canvas>');  // Put a new canvas on the page
@@ -31,7 +37,7 @@ $(document).ready(function(){
 
 function LoadChart(chartToLoad) {
 
-    console.log("You're in load chart");
+    //console.log("You're in load chart");
 
     var req = new XMLHttpRequest();
     var url = 'businessIntelligence/' + chartToLoad;
@@ -46,10 +52,10 @@ function LoadChart(chartToLoad) {
 
 function onLoad() {
 
-    console.log("You're in onLoad");
+    //console.log("You're in onLoad");
     
     var response = this.responseText;
-    console.log(response);
+    //console.log(response);
     var parsedResponse = JSON.parse(response);
 
 
@@ -61,22 +67,22 @@ function onLoad() {
             datasets: [{
                 label: parsedResponse['label'], //'# of Votes',
                 data: parsedResponse['yAxis'], //[12, 19, 3, 5, 2, 3],
-                backgroundColor: [
+                backgroundColor: parsedResponse['backgroundColor'], /*[
                     'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
                     'rgba(255, 206, 86, 0.2)',
                     'rgba(75, 192, 192, 0.2)',
                     'rgba(153, 102, 255, 0.2)',
                     'rgba(255, 159, 64, 0.2)'
-                ],
-                borderColor: [
+                ],*/
+                borderColor: parsedResponse['borderColor'], /*[
                     'rgba(255, 99, 132, 1)',
                     'rgba(54, 162, 235, 1)',
                     'rgba(255, 206, 86, 1)',
                     'rgba(75, 192, 192, 1)',
                     'rgba(153, 102, 255, 1)',
                     'rgba(255, 159, 64, 1)'
-                ],
+                ],*/
                 borderWidth: 1
             }]
         },

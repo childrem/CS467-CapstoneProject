@@ -35,12 +35,25 @@ module.exports = function(){
 
                         dataToSend.xAxis = xAxisValues;
                         dataToSend.label = "# of awards created";
+                        dataToSend.backgroundColor = [];
+                        dataToSend.borderColor = [];
+
+                        for(let i=0; i < xAxisValues.length; i++){
+                            if(i % 2 === 0) {
+                                dataToSend.backgroundColor.push('rgba(255, 99, 132, 0.2)');
+                                dataToSend.borderColor.push('rgba(255, 99, 132, 1)');
+                            }
+
+                            else{
+                                dataToSend.backgroundColor.push('rgba(54, 162, 235, 0.2)');
+                                dataToSend.borderColor.push('rgba(54, 162, 235, 1)');
+                            }
+                        }
 
                         // Now need to get the number of awards each user created
 
-                        //var sqlForAwardCount = "SELECT COUNT(*) AS `awardCount` FROM awards WHERE user_id = ?";
                         var sqlForAwardCount = "SELECT u.id, u.email AS `email`, a.user_id AS `user_id`, COUNT(*) AS `awardCount` FROM awards a INNER JOIN users u ON u.id = a.user_id WHERE a.user_id = ?;"
-                        //var yAxisPlaceholder = xAxisValues;
+
                         var yAxisValues = [];
                         for(let i=0; i < xAxisValues.length; i++){
                             yAxisValues[i] = 0;
@@ -62,15 +75,10 @@ module.exports = function(){
                                 else {
                                     var locationToAdd = xAxisValues.indexOf(results[0].email);
                                     yAxisValues[locationToAdd] = results[0].awardCount;
-                                    console.log(item.email);
-                                    console.log(locationToAdd);
-                                    console.log(yAxisValues[locationToAdd]);
-                                    //locationToAdd++;
-                                    //yAxisValues.push(results[0].awardCount);
                                     numQueriesDone++;
                                     if(numQueriesDone === numQueriesNeeded){
                                         dataToSend.yAxis = yAxisValues;
-                                        console.log(yAxisValues);
+                                        
         
                                         complete();
                                     }
