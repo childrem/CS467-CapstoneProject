@@ -25,8 +25,8 @@ module.exports = function(){
 
 
     function editGeneralUser(req, res, mysql, complete) {
-        var sql = "UPDATE users SET email = ?, user_name = ?, signature_path = ? WHERE id = ?";
-        var inserts = [req.body.Email, req.body.user_name, req.body.Signature, req.body.id];
+        var sql = "UPDATE users SET email = ?, user_name = ? WHERE id = ?";
+        var inserts = [req.body.Email, req.body.user_name, req.body.id];
         sql = mysql.pool.query(sql, inserts, function(error, results, fields) {
             if(error) {
                 res.write(JSON.stringify(error));
