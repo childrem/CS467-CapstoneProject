@@ -42,7 +42,14 @@ module.exports = function(){
         var mysql = req.app.get('mysql');
         var sql = "DELETE FROM users WHERE id = ?";
         var inserts = [req.params.id];
-        sql = mysql.pool.query(sql, inserts, function(error, results, fields){
+        mysql.pool.query("Delete FROM awards where user_id = ?", inserts, function(error, results, fields){
+          if(error){
+            res.write(JSON.stringify(error));
+            res.status(400).end();
+        }
+
+        else{
+          sql = mysql.pool.query(sql, inserts, function(error, results, fields){
             if(error){
                 res.write(JSON.stringify(error));
                 res.status(400).end();
@@ -52,6 +59,8 @@ module.exports = function(){
                 res.status(202).end();      // AJAX function will handle refreshing the table for us
             }
         });
+        }
+        })
     });
     
     return router;

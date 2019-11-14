@@ -1,7 +1,7 @@
 module.exports = function(){
 
   var nodemailer = require('nodemailer');
-
+  var fs = require('fs');
   this.toEmail = "";
   this.resetLink = "";
   this.subject = "";
@@ -29,6 +29,8 @@ module.exports = function(){
     });
     return sent;
   }
+
+
 
   
 }
