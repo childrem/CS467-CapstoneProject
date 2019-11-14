@@ -14,89 +14,12 @@
             <a class="dropdown-item" id="noChart" href="#">None</a>
             <a class="dropdown-item" id="chartOption1" href="#">Number of Awards Created By Users</a>
             <a class="dropdown-item" id="chartOption2" href="#">Number of Awards of Each Type Created</a>
-            <a class="dropdown-item" href="#">Something else here</a>
+            <a class="dropdown-item" id="chartOption3" href="#">Number of Awards By Month</a>
         </div>
     </div>
 </div>
 
-<!--
-<input type="hidden" id="chartType" value = {{chartType}}>
-<input type="hidden" id="xAxis" value = {{xAxis}}>
-<input type="hidden" id="chartLabel" value = {{chartLabel}}>
-<input type="hidden" id="yAxis" value = {{yAxis}}>
--->
-
-<!--<input type="hidden" id="generateChart" value="{{displayChart}}"> -->
 
 <div class="container" id="chartContainer">
     <canvas id="myChart"></canvas>
 </div>
-
-<!--<script src="../static/scripts/chartBuilder.js"></script> -->
-
-<!--
-<script>
-    var ctx = document.getElementById('myChart').getContext('2d');
-    var myChart = new Chart(ctx, {
-        type: document.getElementById("chartType").value,
-        data: {
-            labels: '[' + document.getElementById('xAxis').value + ']',
-            datasets: [{
-                label: document.getElementById('chartLabel').value,
-                data: [document.getElementById('yAxis').value]
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
-        }
-    });
-</script>
--->
-<!--
-<script>
-    var ctx = document.getElementById('myChart').getContext('2d');
-    var myChart = new Chart(ctx, {
-    type: document.getElementById("chartType").value,
-    //type: 'bar',
-    data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-        datasets: [{
-            label: '# of Votes',
-            data: [12, 19, 3, 5, 2, 3],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                }
-            }]
-        }
-    }
-});
-</script>
--->

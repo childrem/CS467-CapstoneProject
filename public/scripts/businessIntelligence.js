@@ -169,6 +169,70 @@ module.exports = function(){
 
     }
 
+    function getAmountByMonth(res, mysql, dataToSend, complete) {
+
+        // Get an array of integers representing the months of the year
+
+        mysql.pool.query("SELECT MONTH(award_date) AS `award_months` FROM awards;", function(error, results, fields) {
+            if(error){
+                res.write(JSON.stringify(error));
+                res.end();
+            }
+
+            else {
+                var xAxisValues = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                var yAxisValues = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+                // Increment the count of each month by 1 as it's seen
+
+                for(item of results) {
+                    var monthToIncrease = item.award_months;
+                    yAxisValues[monthToIncrease - 1] = yAxisValues[monthToIncrease - 1] + 1;
+                }
+
+                dataToSend.xAxis = xAxisValues;
+                dataToSend.label = "# of awards given in month";
+                dataToSend.yAxis = yAxisValues;
+
+                dataToSend.backgroundColor = [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ];
+
+                dataToSend.borderColor = [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ];
+
+                complete();
+
+            }
+
+        });
+
+
+    }
+
   
   // Display the business intelligence page (came from regular browser call - NOT chart request)
   
@@ -217,6 +281,22 @@ module.exports = function(){
         //var dataToSend = {"xAxis": ["user1", "user2", "user3", "user4", "user5", "user6"]};
         //var formattedDataToSend = JSON.stringify(dataToSend);
         //res.send(formattedDataToSend);
+    });
+
+
+    router.get('/awardsByMonth', isAdmin, function(req, res) {
+        var callbackCount = 0;
+        var dataToSend = {};
+        var mysql = req.app.get('mysql');
+        getAmountByMonth(res, mysql, dataToSend, complete);
+
+        function complete() {
+            callbackCount++;
+            if (callbackCount >= 1) {
+                var formattedDataToSend = JSON.stringify(dataToSend);
+                res.send(formattedDataToSend);
+            }
+        }
     });
     
     

@@ -28,16 +28,24 @@ $(document).ready(function(){
         return false;
     });
 
-
-    //LoadChart();
-
+    $('#chartOption3').click(function(){
+        $('#myChart').remove();     // Clear out old chart if present
+        $('#chartContainer').append('<canvas id="myChart"></canvas>');  // Put a new canvas on the page
+        generateAwardsByMonth();
+        return false;
+    });
+    
+    // Close the drop down menu after user clicks a choice. Help obtained from:
+    // https://stackoverflow.com/questions/18855132/close-bootstrap-dropdown-after-link-click
+    
+    $(".dropdown-menu a").click(function() {
+        $(this).closest(".dropdown-menu").prev().dropdown("toggle");
+    });
 
 });
 
 
 function LoadChart(chartToLoad) {
-
-    //console.log("You're in load chart");
 
     var req = new XMLHttpRequest();
     var url = 'businessIntelligence/' + chartToLoad;
@@ -51,11 +59,8 @@ function LoadChart(chartToLoad) {
 
 
 function onLoad() {
-
-    //console.log("You're in onLoad");
     
     var response = this.responseText;
-    //console.log(response);
     var parsedResponse = JSON.parse(response);
 
 
@@ -108,20 +113,13 @@ function generateAwardCount() {
 
     LoadChart("awardCount");
 
-/*
-    $.ajax({
-        url: '/chartSample',
-        type: 'GET',
-        success: function(result){
-            window.location.reload(true);
-        }
-    });
-
-*/
-
 }
 
 
 function generateAmountofEachType() {
     LoadChart("amountOfEachType");
+}
+
+function generateAwardsByMonth() {
+    LoadChart("awardsByMonth");
 }
