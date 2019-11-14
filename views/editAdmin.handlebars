@@ -5,12 +5,13 @@
     <p class="text-center">Admins can add/edit/delete other admins and general users and perform business intelligence</p>
 </div>
 <div class="container justify-content-center w-50 mt-3 card card-body">
-    <form id="editAdmin" action="/editAdmin" method="PUT">
+    <form id="editAdmin" action="/editAdmin" method="POST">
         <div class="form-group">
             <label for="Email">Email address</label>
             <input type="email" class="form-control" name="Email" id="Email" aria-describedby="emailHelp" value="{{email}}"required>
             <small id="emailHelp" class="form-text text-muted">Email address will be used as the account's Username</small>
         </div>
+        <input type="hidden" id="id" name="id" value="{{id}}">
         <div class="form-group col-md-12 text-center">
             <button type="submit" class="btn btn-primary">Submit</button>
         </div>
