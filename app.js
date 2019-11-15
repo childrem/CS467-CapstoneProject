@@ -8,6 +8,7 @@ var mysql = require('./dbcon.js');
 var session = require('express-session');
 var bcrypt = require('bcrypt');
 
+
 global.__basedir = __dirname;
 
 const saltRounds = 10;
@@ -54,6 +55,10 @@ app.use('/forgotPassword', require('./public/scripts/forgotPassword.js'));
 
 
 app.use('/static', express.static('public'));
+
+// for parsing multipart/form-data
+//https://www.tutorialspoint.com/expressjs/expressjs_form_data.htm
+//app.use(upload.array()); 
 
 app.get('/', function (req, res, next) {
 
@@ -103,7 +108,10 @@ app.post('/login', function (req, res) {
               if (rows[0].signature_path === null || rows[0].signature_path === "") {
                 res.redirect('/editUserInfo');
               }
-              res.redirect('/userHome')
+              else{
+                res.redirect('/userHome');
+              }
+              
               break;
             case "admin":
             case "superAdmin":

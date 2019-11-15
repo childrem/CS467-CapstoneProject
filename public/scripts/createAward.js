@@ -44,7 +44,7 @@ module.exports = function () {
 
   }
 
-
+//generate the pdf
   async function GetPDF(inputFileName, outputFileName) {
     return new Promise(resolve => {
       const input = fs.createReadStream(inputFileName)
@@ -58,12 +58,12 @@ module.exports = function () {
       output.on('finish', resolve);
     })
   }
-
+//wrtie the file locally
   async function createInputFile(inputFileName, doc) {
     fs.writeFileSync(inputFileName, doc);
 
   }
-
+//get the number for unique pdf file name
   async function getNumberOfUserAwards(recipient_email) {
 
     return new Promise(resolve => {
@@ -78,7 +78,7 @@ module.exports = function () {
       });
     })
   }
-
+//create the tex file
   async function generateDocString(data, tempFile) {
     //type
     //get type of award
@@ -134,7 +134,7 @@ module.exports = function () {
     })
   }
 
-
+//get the signature file of the user
   async function downloadUserSig(user_id) {
     return new Promise(resolve => {
 
@@ -159,7 +159,7 @@ module.exports = function () {
     })
 
   }
-
+//generate the doc; upload; and send mail
   async function createDocument(data) {
     //download user sig
     var tempFile = await downloadUserSig(data[0]);
@@ -177,6 +177,7 @@ module.exports = function () {
     await GetPDF(inputFileName, outputFileName);
     //delete first file
     fs.unlinkSync(inputFileName)
+    //delete local user sig
     fs.unlinkSync(tempFile);
     //upload to cloudinary
     cloudinary.uploader.upload(outputFileName,
@@ -186,6 +187,7 @@ module.exports = function () {
 
       }
     ).then(function (image) {
+      //returned image info  mail award
       var mail = new mailer();
       var url = image.secure_url;
       var mailOptions = {
@@ -201,6 +203,7 @@ module.exports = function () {
       };
 
       mail.SendMail(mailOptions);
+      //delete temp file
       fs.unlinkSync(outputFileName);
 
 
@@ -211,17 +214,7 @@ module.exports = function () {
 
   }
 
-  function getAwardTypesLocal(award_id) {
-    mysql.pool.query("SELECT id, award_type FROM award_types where id = ?;", [award_id], function (error, results, fields) {
-      if (error) {
-
-      }
-
-      return results[0].award_type;
-      complete();
-    });
-  }
-
+  
   function getAwardTypes(res, mysql, context, complete) {
     mysql.pool.query("SELECT id, award_type FROM award_types;", function (error, results, fields) {
       if (error) {
@@ -244,15 +237,7 @@ module.exports = function () {
         res.end();
       }
       createDocument(inserts);
-      // var mail = new mailer();
-      // var mailOptions = {
-      //   from: 'cchincinfo@gmail.com', // sender address
-      //   to: req.body.email, // list of receivers
-      //   subject: "CCH Awards: Congratulations on your award!", // Subject line
-      //   html: "<p>You have been granted an award! View the attached PDF for details.</p>"// plain text body
-      // };
-
-      // mail.SendMail(mailOptions);
+     
 
       complete();
     })
