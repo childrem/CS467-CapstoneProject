@@ -19,8 +19,8 @@ module.exports = function(){
 
         bcrypt.hash(req.body.Password, saltRounds, function (err, hash) {
             let date = new Date().toISOString().slice(0, 19).replace('T', ' ');
-            let sql = "INSERT INTO users (user_name, password, email, date_created, role_id, signature_path ) VALUES (?,?,?,?,?,?);";
-            let inserts = [req.body.user_name, hash, req.body.Email, date, results[0].id, req.body.Signature];
+            let sql = "INSERT INTO users (user_name, password, email, date_created, role_id) VALUES (?,?,?,?,?);";
+            let inserts = [req.body.user_name, hash, req.body.Email, date, results[0].id];
             sql = mysql.pool.query(sql, inserts, function(error, results, fields){
                 if(error) {
                     res.write(JSON.stringify(error));
