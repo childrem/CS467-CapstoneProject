@@ -20,6 +20,10 @@ module.exports = function () {
   const downloadFile = (url, dest, callback) => {
     console.log("starting download");
     const file = fs.createWriteStream(dest);
+    file.on('error', function(err) {
+      console.log(err);
+      file.end();
+  });
     const req = https.get(url, (res) => {
 
       if (res.statusCode !== 200) {
