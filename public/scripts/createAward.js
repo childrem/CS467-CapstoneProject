@@ -18,6 +18,7 @@ module.exports = function () {
 
   //https://repl.it/@lordproud/Downloading-file-in-nodejs
   const downloadFile = (url, dest, callback) => {
+    console.log("starting download");
     const file = fs.createWriteStream(dest);
     const req = https.get(url, (res) => {
 
@@ -26,6 +27,7 @@ module.exports = function () {
       }
       const len = parseInt(res.headers['content-length'], 10);
       let dowloaded = 0;
+      console.log("starting pipe");
       res.pipe(file);
       res.on('data', (chunk) => {
         dowloaded += chunk.length;
@@ -34,6 +36,7 @@ module.exports = function () {
         file.end();
         callback(null);
       }).on('error', (err) => {
+        console.log("Error:  err");
         callback(err.message);
       })
 
