@@ -147,7 +147,7 @@ module.exports = function () {
         }
         var url = results[0].signature_path;
         var extension = url.substring(url.lastIndexOf("."), url.length);
-        var filename = path + "/tmp/" + "tempSig_" + user_id + extension;
+        var filename = path + "/Temp/" + "tempSig_" + user_id + extension;
         downloadFile(url, filename, (err) => {
           if (err) {
             console.log(err);
@@ -172,8 +172,8 @@ module.exports = function () {
     //save to file
     var countOfAwards = await getNumberOfUserAwards(data[3]);
 
-    var inputFileName = path + "/tmp/user_award_" + data[0] + ".tex";
-    var outputFileName = path + "/tmp/user_award_" + data[0] + "_" + countOfAwards + ".pdf";
+    var inputFileName = path + "/Temp/user_award_" + data[0] + ".tex";
+    var outputFileName = path + "/Temp/user_award_" + data[0] + "_" + countOfAwards + ".pdf";
     var shortname = "user_award_" + data[0] + "_" + countOfAwards;
     await createInputFile(inputFileName, doc);
     //convert to pdf
