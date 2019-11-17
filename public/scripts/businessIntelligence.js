@@ -4,6 +4,8 @@ module.exports = function(){
 
     var Chart = require('chart.js');
 
+    const {Parser} = require('json2csv');
+
     var isAdmin = require('../../adminCheck.js');
 
 
@@ -297,6 +299,47 @@ module.exports = function(){
                 res.send(formattedDataToSend);
             }
         }
+    });
+
+    router.get('/getUserAwardCountCSV', isAdmin, function(req, res) {
+        var fields = ['car', 'price', 'color'];
+        var sampleData = [
+            {
+                "car": "Audi",
+                "price": 1,
+                "color": "blue"
+            },
+            {
+                "car": "BMW",
+                "price": 2,
+                "color": "black"
+            }
+        ];
+
+        const json2csvParser = new Parser({fields});
+        const csv = json2csvParser.parse(sampleData);
+
+        res.setHeader('Content-disposition', 'attachment; filename=sample.csv');
+        res.set('Content-Type', 'text/csv');
+        res.status(200).send(csv);
+
+
+
+        /*
+        json2csv({data: sampleData, fields: fields}, function(err, csv){
+            if(err){
+                console.log(err);
+
+            }
+            else{
+                res.setHeader('Content-disposition', 'attachment; filename=sample.csv');
+                res.set('Content-Type', 'text/csv');
+                res.status(200).send(csv);
+            }
+        });
+        */
+        //console.log("You've reached the download page!");
+        //res.end();
     });
     
     
