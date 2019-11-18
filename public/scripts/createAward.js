@@ -121,7 +121,7 @@ module.exports = function () {
         \\section*{Presented By}
         \\large ${results[0].user_name} \\\\
         on \\\\
-        ${date.toString()}
+        ${newDate.toString()}
         \\end{center}
         
         \\begin{flushright}
