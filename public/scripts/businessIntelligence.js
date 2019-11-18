@@ -32,11 +32,31 @@ module.exports = function(){
         dataToSendShell.dataToSend.push(new createAwardByMonthObject("November"));
         dataToSendShell.dataToSend.push(new createAwardByMonthObject("December"));
 
-        console.log("dataToSend in the get function");
-        console.log(dataToSendShell.dataToSend);
+        // Get award count data
 
+        mysql.pool.query("SELECT MONTH(award_date) AS `award_months` FROM awards;", function(error, results, fields) {
+            if(error){
+                res.write(JSON.stringify(error));
+                res.end();
+            }
 
-        complete();
+            else {
+
+                var numUpdatesDone = 0;
+                var numUpdatesNeeded = results.length;
+                // Increment the count of each month by 1 as it's seen
+
+                for(item of results) {
+                    var monthToIncrease = item.award_months;
+                    dataToSendShell.dataToSend[monthToIncrease - 1].award_count = dataToSendShell.dataToSend[monthToIncrease - 1].award_count + 1;
+                    numUpdatesDone++;
+                    if(numUpdatesDone === numUpdatesNeeded) {
+                        complete();
+                    }
+                }
+
+            }
+        });
     }
 
 
@@ -400,9 +420,6 @@ module.exports = function(){
             callbackCount++;
             if (callbackCount >= 1) {
                 var formattedDataToSend = JSON.stringify(dataToSendShell.dataToSend);
-
-                console.log("Formatted Data To Send At the end");
-                console.log(formattedDataToSend);
 
                 let csv = '';
                 asyncParser.processor
