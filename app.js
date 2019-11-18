@@ -44,6 +44,7 @@ app.use('/editGeneralUserAdminSite', require('./public/scripts/editGeneralUserAd
 app.use('/', require('./public/scripts/landingPage.js'));
 app.use('/userHome', require('./public/scripts/userHome.js'));
 app.use('/editUserInfo', require('./public/scripts/editUserInfo.js'));
+app.use('/editUserSig', require('./public/scripts/editUserSig.js'));
 app.use('/createAward', require('./public/scripts/createAward.js'));
 app.use('/awards', require('./public/scripts/awards.js'));
 app.use('/addAwardCategory', require('./public/scripts/addAwardCategory.js'));
