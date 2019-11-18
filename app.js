@@ -2,21 +2,23 @@
 var express = require('express');
 
 var app = express();
-var handlebars = require('express-handlebars').create({defaultLayout:'main'});
+var handlebars = require('express-handlebars').create({ defaultLayout: 'main' });
 var bodyParser = require('body-parser');
 var mysql = require('./dbcon.js');
 var session = require('express-session');
 var bcrypt = require('bcrypt');
-const saltRounds = 10;
 
-var mailer = require('./public/scripts/mailer.js');
+
+global.__basedir = __dirname;
+
+const saltRounds = 10;
 
 const PORT = process.env.PORT || 5000
 
 app.use(session({
-	secret: 'secret',
-	resave: true,
-	saveUninitialized: true
+  secret: 'secret',
+  resave: true,
+  saveUninitialized: true
 }));
 
 
@@ -54,10 +56,14 @@ app.use('/forgotPassword', require('./public/scripts/forgotPassword.js'));
 
 app.use('/static', express.static('public'));
 
-app.get('/',function(req,res,next){
- 
-    //res.render('home');
-    res.render('landingPage');
+// for parsing multipart/form-data
+//https://www.tutorialspoint.com/expressjs/expressjs_form_data.htm
+//app.use(upload.array()); 
+
+app.get('/', function (req, res, next) {
+
+  //res.render('home');
+  res.render('landingPage');
 
 });
 
@@ -65,7 +71,7 @@ app.get('/',function(req,res,next){
 
 //login logout logic and implementation inspired by the following site:
 //https://www.codexpedia.com/node-js/a-very-basic-session-auth-in-node-js-with-express-js/
-app.get('/logout', function(req, res){
+app.get('/logout', function (req, res) {
   req.session.destroy();
   res.redirect('/');
 })
@@ -76,10 +82,11 @@ app.post('/login', function (req, res) {
     req.session.errorMessage = "Invalid Login";
     res.redirect('/');
   }
-  mysql.pool.query("select users.*, roles.role From Users inner join roles on users.role_id = roles.id where users.email = ?", [req.body.Email], function(err, rows, fields){
-    if(err){
-      next(err); 
-	  return;
+  mysql.pool.query("select users.*, roles.role From Users inner join roles on users.role_id = roles.id where users.email = ?", [req.body.Email], function (err, rows, fields) {
+    if (err) {
+      req.session.errorMessage = "Invalid Login";
+      res.redirect('/');
+      return;
     }
 
     //res.status(200).json(rows);
@@ -87,52 +94,49 @@ app.post('/login', function (req, res) {
       req.session.errorMessage = "Invalid Login";
       res.redirect('/');
     }
-	else {
+    else {
       //valid data
       bcrypt.compare(req.body.Password, rows[0].password, function (err, result) {
-                if (result == true) {
-                  req.session.role = rows[0].role;
-                  req.session.user_name = rows[0].user_name;
-				  req.session.user_id = rows[0].id;
-                  req.session.save();
-                  switch (rows[0].role) {
-                    case "general":
-                      res.redirect('/userHome')
-                      break;
-                    case "admin":
-                    case "superAdmin":
-                      res.redirect('/adminHome');
-                      break;
-                    default:
-                      req.session.errorMessage = "Invalid Login";
-                      res.redirect('/');
-                    break;
-                  }      
-                } else {
-                  req.session.errorMessage = "Invalid Login";
-                  res.redirect('/');    
-                }
-	  })			  
-    };   
+        if (result == true) {
+          req.session.role = rows[0].role;
+          req.session.user_name = rows[0].user_name;
+          req.session.user_id = rows[0].id;
+          req.session.sig_path = rows[0].signature_path;
+          req.session.save();
+          switch (rows[0].role) {
+            case "general":
+              if (rows[0].signature_path === null || rows[0].signature_path === "") {
+                res.redirect('/editUserInfo');
+              }
+              else{
+                res.redirect('/userHome');
+              }
+              
+              break;
+            case "admin":
+            case "superAdmin":
+              res.redirect('/adminHome');
+              break;
+            default:
+              req.session.errorMessage = "Invalid Login";
+              res.redirect('/');
+              break;
+          }
+        } else {
+          req.session.errorMessage = "Invalid Login";
+          res.redirect('/');
+        }
+      })
+    };
   });
 })
 
-
-app.get('/SendMail',function(req,res){
-  
-  var myMail = new mailer();
-  myMail.SendMail();
-  
-  res.status(200);
-  
-});
-
-app.use(function(req,res){
+app.use(function (req, res) {
   res.status(404);
   res.render('404');
 });
 
-app.use(function(err, req, res, next){
+app.use(function (err, req, res, next) {
   console.error(err.stack);
   res.type('plain/text');
   res.status(500);
@@ -141,8 +145,8 @@ app.use(function(err, req, res, next){
 
 
 
- 
 
-app.listen(app.get('port'), function(){
+
+app.listen(app.get('port'), function () {
   console.log('Express started on http://localhost:' + app.get('port') + '; press Ctrl-C to terminate.');
 });

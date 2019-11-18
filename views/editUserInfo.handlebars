@@ -1,3 +1,33 @@
+<script src="../static/scripts/editUserClient.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
 <div class="container" style="margin-top:100px;">
+  <div class="row">
     <h1 class="text-center">Edit User Information</h1>
+</div>
+   
+<div class="row">
+    <div class="col-sm">
+      
+    </div>
+    <div class="col-sm">
+      <div style="border-color:black; border-style:solid; border-radius:20px;">
+         <canvas id="signature-pad" width="400" height="200"></canvas>
+      </div>
+      <div>
+        <button id="saveButton" type="button" class="btn btn-primary">Save Image</button>
+        <button id="clearButton" type="button" class="btn btn-primary">Clear</button>
+      </div>
+      <div>
+        <input id="sig-file" type="file" name="userSig" />
+        <button id="uploadButton" type="button" class="btn btn-primary">Upload Image</button>
+        
+      </div>
+    </div>
+    </div>
+
+    <div class="col-sm">
+      
+    </div>
+  </div>
+
 </div>

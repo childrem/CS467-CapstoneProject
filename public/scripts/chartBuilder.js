@@ -5,20 +5,47 @@ $(document).ready(function(){
 
     // Help setting up click event listeners obtained from:
     // https://stackoverflow.com/questions/1070760/javascript-function-in-href-vs-onclick
+    // Help with clearing the canvas element so hover would work obtained from:
+    // https://stackoverflow.com/questions/24815851/how-to-clear-a-chart-from-a-canvas-so-that-hover-events-cannot-be-triggered
 
-    $('#chartOption1').click(function(){generateSampleChart(); return false;});
-    $('#chartOption2').click(function(){generateSampleChart2(); return false;});
+    $('#noChart').click(function(){
+        $('#myChart').remove();     // Clear out old chart if present
+        $('#chartContainer').append('<canvas id="myChart"></canvas>');  // Put a new canvas on the page
+        return false;
+    });
+    
+    $('#chartOption1').click(function(){
+        $('#myChart').remove();     // Clear out old chart if present
+        $('#chartContainer').append('<canvas id="myChart"></canvas>');  // Put a new canvas on the page
+        generateAwardCount(); 
+        return false;
+    });
 
+    $('#chartOption2').click(function(){
+        $('#myChart').remove();     // Clear out old chart if present
+        $('#chartContainer').append('<canvas id="myChart"></canvas>');  // Put a new canvas on the page
+        generateAmountofEachType(); 
+        return false;
+    });
 
-    //LoadChart();
-
+    $('#chartOption3').click(function(){
+        $('#myChart').remove();     // Clear out old chart if present
+        $('#chartContainer').append('<canvas id="myChart"></canvas>');  // Put a new canvas on the page
+        generateAwardsByMonth();
+        return false;
+    });
+    
+    // Close the drop down menu after user clicks a choice. Help obtained from:
+    // https://stackoverflow.com/questions/18855132/close-bootstrap-dropdown-after-link-click
+    
+    $(".dropdown-menu a").click(function() {
+        $(this).closest(".dropdown-menu").prev().dropdown("toggle");
+    });
 
 });
 
 
 function LoadChart(chartToLoad) {
-
-    console.log("You're in load chart");
 
     var req = new XMLHttpRequest();
     var url = 'businessIntelligence/' + chartToLoad;
@@ -32,11 +59,8 @@ function LoadChart(chartToLoad) {
 
 
 function onLoad() {
-
-    console.log("You're in onLoad");
     
     var response = this.responseText;
-    console.log(response);
     var parsedResponse = JSON.parse(response);
 
 
@@ -46,24 +70,24 @@ function onLoad() {
         data: {
             labels: parsedResponse['xAxis'], //['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'], //parsedResponse['xAxis'],
             datasets: [{
-                label: '# of Votes',
-                data: [12, 19, 3, 5, 2, 3],
-                backgroundColor: [
+                label: parsedResponse['label'], //'# of Votes',
+                data: parsedResponse['yAxis'], //[12, 19, 3, 5, 2, 3],
+                backgroundColor: parsedResponse['backgroundColor'], /*[
                     'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
                     'rgba(255, 206, 86, 0.2)',
                     'rgba(75, 192, 192, 0.2)',
                     'rgba(153, 102, 255, 0.2)',
                     'rgba(255, 159, 64, 0.2)'
-                ],
-                borderColor: [
+                ],*/
+                borderColor: parsedResponse['borderColor'], /*[
                     'rgba(255, 99, 132, 1)',
                     'rgba(54, 162, 235, 1)',
                     'rgba(255, 206, 86, 1)',
                     'rgba(75, 192, 192, 1)',
                     'rgba(153, 102, 255, 1)',
                     'rgba(255, 159, 64, 1)'
-                ],
+                ],*/
                 borderWidth: 1
             }]
         },
@@ -85,24 +109,17 @@ function onError() {
 }
 
 
-function generateSampleChart() {
+function generateAwardCount() {
 
-    LoadChart("chartSample");
-
-/*
-    $.ajax({
-        url: '/chartSample',
-        type: 'GET',
-        success: function(result){
-            window.location.reload(true);
-        }
-    });
-
-*/
+    LoadChart("awardCount");
 
 }
 
 
-function generateSampleChart2() {
-    LoadChart("chartSample2");
+function generateAmountofEachType() {
+    LoadChart("amountOfEachType");
+}
+
+function generateAwardsByMonth() {
+    LoadChart("awardsByMonth");
 }

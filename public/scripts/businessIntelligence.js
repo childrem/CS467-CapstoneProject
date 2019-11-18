@@ -6,6 +6,233 @@ module.exports = function(){
 
     var isAdmin = require('../../adminCheck.js');
 
+
+    function getAwardCountData(res, mysql, dataToSend, complete) {
+        // Get the list of general users in the database
+
+        mysql.pool.query("SELECT id FROM roles WHERE role = 'general';", function(error, results, fields) {
+            if(error){
+                res.write(JSON.stringify(error));
+                res.end();
+            }
+
+            else {
+                var generalUserRoleId = results[0].id;
+                var sqlForGeneralUsers = "SELECT id, email FROM users WHERE role_id = ? ORDER BY id";
+                var inserts = [generalUserRoleId];
+                
+                sqlForGeneralUsers = mysql.pool.query(sqlForGeneralUsers, inserts, function(error, results, fields) {
+                    if(error){
+                        res.write(JSON.stringify(error));
+                        res.end();
+                    }
+
+                    else {
+                        var xAxisValues = [];
+                        for(item of results){
+                            xAxisValues.push(item.email);
+                        }
+
+                        dataToSend.xAxis = xAxisValues;
+                        dataToSend.label = "# of awards created";
+                        dataToSend.backgroundColor = [];
+                        dataToSend.borderColor = [];
+
+                        for(let i=0; i < xAxisValues.length; i++){
+                            if(i % 2 === 0) {
+                                dataToSend.backgroundColor.push('rgba(255, 99, 132, 0.2)');
+                                dataToSend.borderColor.push('rgba(255, 99, 132, 1)');
+                            }
+
+                            else{
+                                dataToSend.backgroundColor.push('rgba(54, 162, 235, 0.2)');
+                                dataToSend.borderColor.push('rgba(54, 162, 235, 1)');
+                            }
+                        }
+
+                        // Now need to get the number of awards each user created
+
+                        var sqlForAwardCount = "SELECT u.id, u.email AS `email`, a.user_id AS `user_id`, COUNT(*) AS `awardCount` FROM awards a INNER JOIN users u ON u.id = a.user_id WHERE a.user_id = ?;";
+
+                        var yAxisValues = [];
+                        for(let i=0; i < xAxisValues.length; i++){
+                            yAxisValues[i] = 0;
+                        }
+
+                        var numQueriesDone = 0;
+                        var numQueriesNeeded = xAxisValues.length;
+
+                        //var locationToAdd = 0;
+
+                        for(item of results){
+                            var inserts = [item.id];
+                            mysql.pool.query(sqlForAwardCount, inserts, function(error, results, fields) {
+                                if(error){
+                                    res.write(JSON.stringify(error));
+                                    res.end();
+                                }
+
+                                else {
+                                    var locationToAdd = xAxisValues.indexOf(results[0].email);
+                                    yAxisValues[locationToAdd] = results[0].awardCount;
+                                    numQueriesDone++;
+                                    if(numQueriesDone === numQueriesNeeded){
+                                        dataToSend.yAxis = yAxisValues;
+                                        
+        
+                                        complete();
+                                    }
+                                }
+                            });
+
+                        }
+
+                    }
+                });
+            }
+        });
+
+    }
+
+    function getAmountOfEachType(res, mysql, dataToSend, complete) {
+
+        // Get the list of award types from the database for the X-axis
+
+        mysql.pool.query("SELECT id, award_type FROM award_types;", function(error, results, fields){
+            if(error){
+                res.write(JSON.stringify(error));
+                res.end();
+            }
+
+            else {
+                var xAxisValues = [];
+                for(item of results){
+                    xAxisValues.push(item.award_type);
+                }
+
+                dataToSend.xAxis = xAxisValues;
+                dataToSend.label = "# of awards of each type";
+                dataToSend.backgroundColor = [];
+                dataToSend.borderColor = [];
+
+                for(let i=0; i < xAxisValues.length; i++){
+                    if(i % 2 === 0) {
+                        dataToSend.backgroundColor.push('rgba(255, 99, 132, 0.2)');
+                        dataToSend.borderColor.push('rgba(255, 99, 132, 1)');
+                    }
+
+                    else{
+                        dataToSend.backgroundColor.push('rgba(54, 162, 235, 0.2)');
+                        dataToSend.borderColor.push('rgba(54, 162, 235, 1)');
+                    }
+                }
+
+                //console.log(xAxisValues);
+
+                // Now we need the number of each award type in the database
+
+                var sqlForAwardTypeCount = "SELECT awdt.id, awdt.award_type AS `award_type_name`, a.award_type_id AS `award_type`, COUNT(*) AS `typeCount` FROM awards a INNER JOIN award_types awdt ON awdt.id = a.award_type_id WHERE a.award_type_id = ?;";
+
+                var yAxisValues = [];
+                for(let i=0; i < xAxisValues.length; i++){
+                    yAxisValues[i] = 0;
+                }
+
+                var numQueriesDone = 0;
+                var numQueriesNeeded = xAxisValues.length;
+
+                for(item of results){
+                    var inserts = [item.id];
+                    mysql.pool.query(sqlForAwardTypeCount, inserts, function(error, results, fields) {
+                        if(error){
+                            res.write(JSON.stringify(error));
+                            res.end();
+                        }
+
+                        else {
+                            var locationToAdd = xAxisValues.indexOf(results[0].award_type_name);
+                            yAxisValues[locationToAdd] = results[0].typeCount;
+                            numQueriesDone++;
+                            if(numQueriesDone === numQueriesNeeded){
+                                dataToSend.yAxis = yAxisValues;
+                                
+
+                                complete();
+                            }
+                        }
+                    });
+
+                }
+            }
+        });
+
+
+    }
+
+    function getAmountByMonth(res, mysql, dataToSend, complete) {
+
+        // Get an array of integers representing the months of the year
+
+        mysql.pool.query("SELECT MONTH(award_date) AS `award_months` FROM awards;", function(error, results, fields) {
+            if(error){
+                res.write(JSON.stringify(error));
+                res.end();
+            }
+
+            else {
+                var xAxisValues = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                var yAxisValues = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+                // Increment the count of each month by 1 as it's seen
+
+                for(item of results) {
+                    var monthToIncrease = item.award_months;
+                    yAxisValues[monthToIncrease - 1] = yAxisValues[monthToIncrease - 1] + 1;
+                }
+
+                dataToSend.xAxis = xAxisValues;
+                dataToSend.label = "# of awards given in month";
+                dataToSend.yAxis = yAxisValues;
+
+                dataToSend.backgroundColor = [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ];
+
+                dataToSend.borderColor = [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ];
+
+                complete();
+
+            }
+
+        });
+
+
+    }
+
   
   // Display the business intelligence page (came from regular browser call - NOT chart request)
   
@@ -14,36 +241,62 @@ module.exports = function(){
         context.adminPage = true;
         context.jsscripts = ["chartBuilder.js"];
 
-
-        //var dataToSend = {"generateChart": "false"}     // we don't generate a chart when they first get to the page
-        //var formattedDataToSend = JSON.stringify(dataToSend);
-        //res.send(formattedDataToSend);
-
-        //let data = {"xAxis": ["test1", "test2", "test3", "test4", "test5", "test6"]};
-        //res.json(data);
-
-        //context.chartType = 'bar';
-        //context.xAxis = ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'];
-        //context.chartLabel = '# of Votes';
-        //context.yAxis = [12, 19, 3, 5, 2, 3];
-
         res.render('businessIntelligence', context);
     });
 
 
     // Comes from AJAX on client side
 
-    router.get('/chartSample', isAdmin, function(req, res) {
-        var dataToSend = {"xAxis": ["test1", "test2", "test3", "test4", "test5", "test6"]};
-        var formattedDataToSend = JSON.stringify(dataToSend);
-        res.send(formattedDataToSend);
+    router.get('/awardCount', isAdmin, function(req, res) {
+        var callbackCount = 0;
+        var dataToSend = {};
+        var mysql = req.app.get('mysql');
+        getAwardCountData(res, mysql, dataToSend, complete);
+
+        function complete() {   // Send formatted data when everything in dataToSend is correctly set up
+            callbackCount++;
+            if (callbackCount >= 1) {
+                var formattedDataToSend = JSON.stringify(dataToSend);
+                res.send(formattedDataToSend);
+            }
+        }
+
     });
 
 
-    router.get('/chartSample2', isAdmin, function(req, res) {
-        var dataToSend = {"xAxis": ["user1", "user2", "user3", "user4", "user5", "user6"]};
-        var formattedDataToSend = JSON.stringify(dataToSend);
-        res.send(formattedDataToSend);
+    router.get('/amountOfEachType', isAdmin, function(req, res) {
+        var callbackCount = 0;
+        var dataToSend = {};
+        var mysql = req.app.get('mysql');
+        getAmountOfEachType(res, mysql, dataToSend, complete);
+
+        function complete() {
+            callbackCount++;
+            if (callbackCount >= 1) {
+                var formattedDataToSend = JSON.stringify(dataToSend);
+                res.send(formattedDataToSend);
+            }
+        }
+
+        //var dataToSend = {"xAxis": ["user1", "user2", "user3", "user4", "user5", "user6"]};
+        //var formattedDataToSend = JSON.stringify(dataToSend);
+        //res.send(formattedDataToSend);
+    });
+
+
+    router.get('/awardsByMonth', isAdmin, function(req, res) {
+        var callbackCount = 0;
+        var dataToSend = {};
+        var mysql = req.app.get('mysql');
+        getAmountByMonth(res, mysql, dataToSend, complete);
+
+        function complete() {
+            callbackCount++;
+            if (callbackCount >= 1) {
+                var formattedDataToSend = JSON.stringify(dataToSend);
+                res.send(formattedDataToSend);
+            }
+        }
     });
     
     
