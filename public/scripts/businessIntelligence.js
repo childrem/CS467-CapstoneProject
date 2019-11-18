@@ -15,6 +15,11 @@ module.exports = function(){
         this.award_count = 0;       // Will be incremented as needed
     }
 
+    function createAwardByTypeObject(type, count) {
+        this.award_type = type;
+        this.award_count = count;
+    }
+
 
     function getAwardsByMonthCSV(res, mysql, dataToSendShell, complete) {
         // Populate the dataToSend array of objects
@@ -56,6 +61,64 @@ module.exports = function(){
                 }
 
             }
+        });
+    }
+
+
+    function getAwardsByTypeCSV(res, mysql, dataToSendShell, complete) {
+
+        // Get the names of the award types
+        mysql.pool.query("SELECT id, award_type FROM award_types;", function(error, results, fields){
+            if(error){
+                res.write(JSON.stringify(error));
+                res.end();
+            }
+
+            else {
+                var award_type_values = [];
+                for(item of results){
+                    award_type_values.push(item.award_type);
+                }
+
+                // Now we need the number of each award type in the database
+
+                var sqlForAwardTypeCount = "SELECT awdt.id, awdt.award_type AS `award_type_name`, a.award_type_id AS `award_type`, COUNT(*) AS `typeCount` FROM awards a INNER JOIN award_types awdt ON awdt.id = a.award_type_id WHERE a.award_type_id = ?;";
+
+                var award_count_values = [];
+                for(let i=0; i < award_type_values.length; i++){
+                    award_count_values[i] = 0;
+                }
+
+                var numQueriesDone = 0;
+                var numQueriesNeeded = award_type_values.length;
+
+                for(item of results){
+                    var inserts = [item.id];
+                    mysql.pool.query(sqlForAwardTypeCount, inserts, function(error, results, fields) {
+                        if(error){
+                            res.write(JSON.stringify(error));
+                            res.end();
+                        }
+
+                        else {
+                            var locationToAdd = award_type_values.indexOf(results[0].award_type_name);
+                            award_count_values[locationToAdd] = results[0].typeCount;
+                            numQueriesDone++;
+                            if(numQueriesDone === numQueriesNeeded){
+                                
+                                for(let i=0; i < award_type_values.length; i++) {
+                                    dataToSendShell.dataToSend.push(new createAwardByTypeObject(award_type_values[i], award_count_values[i]));
+                                }
+                                
+
+                                complete();
+                            }
+                        }
+                    });
+
+                }
+            }
+
         });
     }
 
@@ -374,29 +437,43 @@ module.exports = function(){
         res.set('Content-Type', 'text/csv');
         res.status(200).send(csv);
 
-
-
-        /*
-        json2csv({data: sampleData, fields: fields}, function(err, csv){
-            if(err){
-                console.log(err);
-
-            }
-            else{
-                res.setHeader('Content-disposition', 'attachment; filename=sample.csv');
-                res.set('Content-Type', 'text/csv');
-                res.status(200).send(csv);
-            }
-        });
-        */
-        //console.log("You've reached the download page!");
-        //res.end();
     });
 
 
     // Number of awards by type CSV handler
 
     router.get('/getAwardTypeCSV', isAdmin, function(req, res){
+        var callbackCount = 0;
+        var dataToSendShell = {};   // So changes persist
+        dataToSendShell.dataToSend = [];
+
+        const fields = ['award_type', 'award_count'];
+        const opts = { fields };
+        const transformOpts = { highWaterMark: 8192 };
+        const asyncParser = new AsyncParser(opts, transformOpts);
+
+        var mysql = req.app.get('mysql');
+        getAwardsByTypeCSV(res, mysql, dataToSendShell, complete);
+
+        function complete() {
+            callbackCount++;
+            if (callbackCount >= 1) {
+                var formattedDataToSend = JSON.stringify(dataToSendShell.dataToSend);
+
+                let csv = '';
+                asyncParser.processor
+                .on('data', chunk => csv += chunk.toString())
+                .on('end', () => {
+                    res.setHeader('Content-disposition', 'attachment; filename=awards_by_type.csv');
+                    res.set('Content-Type', 'text/csv');
+                    res.status(200).send(csv);
+                })
+                .on('error', err => console.error(err));
+
+                asyncParser.input.push(formattedDataToSend);
+                asyncParser.input.push(null);
+            }
+        }
 
     });
 
@@ -433,31 +510,6 @@ module.exports = function(){
 
                 asyncParser.input.push(formattedDataToSend);
                 asyncParser.input.push(null);
-
-                //res.setHeader('Content-disposition', 'attachment; filename=awards_by_month.csv');
-                //res.set('Content-Type', 'text/csv');
-                //res.status(200).send(csv);
-
-                /*
-
-                try {
-                    const parser = new Parser(opts);
-                    const csv = parser.parse(formattedDataToSend);
-                    res.setHeader('Content-disposition', 'attachment; filename=awards_by_month.csv');
-                    res.set('Content-Type', 'text/csv');
-                    res.status(200).send(csv);     
-                }
-
-                catch (err) {
-                    console.error(err);
-                }
-
-                */
-                //const csv = json2csvParser.parse(formattedDataToSend);
-
-                //res.setHeader('Content-disposition', 'attachment; filename=awards_by_month.csv');
-                //res.set('Content-Type', 'text/csv');
-                //res.status(200).send(csv);
             }
         }
 
