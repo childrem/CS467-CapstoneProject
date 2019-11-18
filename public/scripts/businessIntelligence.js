@@ -4,7 +4,60 @@ module.exports = function(){
 
     var Chart = require('chart.js');
 
+    //const { Parser } = require('json2csv');
+    const { AsyncParser } = require('json2csv');
+
     var isAdmin = require('../../adminCheck.js');
+
+
+    function createAwardByMonthObject(month) {
+        this.month = month;
+        this.award_count = 0;       // Will be incremented as needed
+    }
+
+
+    function getAwardsByMonthCSV(res, mysql, dataToSendShell, complete) {
+        // Populate the dataToSend array of objects
+
+        dataToSendShell.dataToSend.push(new createAwardByMonthObject("January"));
+        dataToSendShell.dataToSend.push(new createAwardByMonthObject("February")); 
+        dataToSendShell.dataToSend.push(new createAwardByMonthObject("March"));
+        dataToSendShell.dataToSend.push(new createAwardByMonthObject("April"));
+        dataToSendShell.dataToSend.push(new createAwardByMonthObject("May"));
+        dataToSendShell.dataToSend.push(new createAwardByMonthObject("June"));
+        dataToSendShell.dataToSend.push(new createAwardByMonthObject("July"));
+        dataToSendShell.dataToSend.push(new createAwardByMonthObject("August"));
+        dataToSendShell.dataToSend.push(new createAwardByMonthObject("September"));
+        dataToSendShell.dataToSend.push(new createAwardByMonthObject("October"));
+        dataToSendShell.dataToSend.push(new createAwardByMonthObject("November"));
+        dataToSendShell.dataToSend.push(new createAwardByMonthObject("December"));
+
+        // Get award count data
+
+        mysql.pool.query("SELECT MONTH(award_date) AS `award_months` FROM awards;", function(error, results, fields) {
+            if(error){
+                res.write(JSON.stringify(error));
+                res.end();
+            }
+
+            else {
+
+                var numUpdatesDone = 0;
+                var numUpdatesNeeded = results.length;
+                // Increment the count of each month by 1 as it's seen
+
+                for(item of results) {
+                    var monthToIncrease = item.award_months;
+                    dataToSendShell.dataToSend[monthToIncrease - 1].award_count = dataToSendShell.dataToSend[monthToIncrease - 1].award_count + 1;
+                    numUpdatesDone++;
+                    if(numUpdatesDone === numUpdatesNeeded) {
+                        complete();
+                    }
+                }
+
+            }
+        });
+    }
 
 
     function getAwardCountData(res, mysql, dataToSend, complete) {
@@ -297,6 +350,117 @@ module.exports = function(){
                 res.send(formattedDataToSend);
             }
         }
+    });
+
+    router.get('/getUserAwardCountCSV', isAdmin, function(req, res) {
+        var fields = ['car', 'price', 'color'];
+        var sampleData = [
+            {
+                "car": "Audi",
+                "price": 1,
+                "color": "blue"
+            },
+            {
+                "car": "BMW",
+                "price": 2,
+                "color": "black"
+            }
+        ];
+
+        const json2csvParser = new Parser({fields});
+        const csv = json2csvParser.parse(sampleData);
+
+        res.setHeader('Content-disposition', 'attachment; filename=sample.csv');
+        res.set('Content-Type', 'text/csv');
+        res.status(200).send(csv);
+
+
+
+        /*
+        json2csv({data: sampleData, fields: fields}, function(err, csv){
+            if(err){
+                console.log(err);
+
+            }
+            else{
+                res.setHeader('Content-disposition', 'attachment; filename=sample.csv');
+                res.set('Content-Type', 'text/csv');
+                res.status(200).send(csv);
+            }
+        });
+        */
+        //console.log("You've reached the download page!");
+        //res.end();
+    });
+
+
+    // Number of awards by type CSV handler
+
+    router.get('/getAwardTypeCSV', isAdmin, function(req, res){
+
+    });
+
+
+    // Number of awards by month CSV handler
+
+    router.get('/getAwardMonthsCSV', isAdmin, function(req, res){
+        var callbackCount = 0;
+        var dataToSendShell = {};   // So changes persist
+        dataToSendShell.dataToSend = [];
+
+        const fields = ['month', 'award_count'];
+        const opts = { fields };
+        const transformOpts = { highWaterMark: 8192 };
+        const asyncParser = new AsyncParser(opts, transformOpts);
+
+        var mysql = req.app.get('mysql');
+        getAwardsByMonthCSV(res, mysql, dataToSendShell, complete);
+
+        function complete() {
+            callbackCount++;
+            if (callbackCount >= 1) {
+                var formattedDataToSend = JSON.stringify(dataToSendShell.dataToSend);
+
+                let csv = '';
+                asyncParser.processor
+                .on('data', chunk => csv += chunk.toString())
+                .on('end', () => {
+                    res.setHeader('Content-disposition', 'attachment; filename=awards_by_month.csv');
+                    res.set('Content-Type', 'text/csv');
+                    res.status(200).send(csv);
+                })
+                .on('error', err => console.error(err));
+
+                asyncParser.input.push(formattedDataToSend);
+                asyncParser.input.push(null);
+
+                //res.setHeader('Content-disposition', 'attachment; filename=awards_by_month.csv');
+                //res.set('Content-Type', 'text/csv');
+                //res.status(200).send(csv);
+
+                /*
+
+                try {
+                    const parser = new Parser(opts);
+                    const csv = parser.parse(formattedDataToSend);
+                    res.setHeader('Content-disposition', 'attachment; filename=awards_by_month.csv');
+                    res.set('Content-Type', 'text/csv');
+                    res.status(200).send(csv);     
+                }
+
+                catch (err) {
+                    console.error(err);
+                }
+
+                */
+                //const csv = json2csvParser.parse(formattedDataToSend);
+
+                //res.setHeader('Content-disposition', 'attachment; filename=awards_by_month.csv');
+                //res.set('Content-Type', 'text/csv');
+                //res.status(200).send(csv);
+            }
+        }
+
     });
     
     
