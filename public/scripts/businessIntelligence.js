@@ -20,6 +20,11 @@ module.exports = function(){
         this.award_count = count;
     }
 
+    function createUserAwardCountObject(email, count) {
+        this.user_email = email;
+        this.award_creation_count = count;
+    }
+
 
     function getAwardsByMonthCSV(res, mysql, dataToSendShell, complete) {
         // Populate the dataToSend array of objects
@@ -120,6 +125,80 @@ module.exports = function(){
             }
 
         });
+    }
+
+
+    function getAwardCreationCountCSV(res, mysql, dataToSendShell, complete) {
+
+        mysql.pool.query("SELECT id FROM roles WHERE role = 'general';", function(error, results, fields) {
+            if(error){
+                res.write(JSON.stringify(error));
+                res.end();
+            }
+
+            else {
+                var generalUserRoleId = results[0].id;
+                var sqlForGeneralUsers = "SELECT id, email FROM users WHERE role_id = ? ORDER BY id";
+                var inserts = [generalUserRoleId];
+
+                sqlForGeneralUsers = mysql.pool.query(sqlForGeneralUsers, inserts, function(error, results, fields) {
+                    if(error){
+                        res.write(JSON.stringify(error));
+                        res.end();
+                    }
+
+                    else {
+                        var email_values = [];
+                        for(item of results){
+                            email_values.push(item.email);
+                        }
+
+                        // Now need to get the number of awards each user created
+
+                        var sqlForAwardCount = "SELECT u.id, u.email AS `email`, a.user_id AS `user_id`, COUNT(*) AS `awardCount` FROM awards a INNER JOIN users u ON u.id = a.user_id WHERE a.user_id = ?;";
+
+                        var award_count_values = [];
+                        for(let i=0; i < email_values.length; i++){
+                            award_count_values[i] = 0;
+                        }
+
+                        var numQueriesDone = 0;
+                        var numQueriesNeeded = email_values.length;
+
+                        for(item of results){
+                            var inserts = [item.id];
+                            mysql.pool.query(sqlForAwardCount, inserts, function(error, results, fields) {
+                                if(error){
+                                    res.write(JSON.stringify(error));
+                                    res.end();
+                                }
+
+                                else {
+                                    var locationToAdd = email_values.indexOf(results[0].email);
+                                    award_count_values[locationToAdd] = results[0].awardCount;
+                                    numQueriesDone++;
+                                    if(numQueriesDone === numQueriesNeeded){
+                                        
+                                        for(let i=0; i < email_values.length; i++) {
+                                            dataToSendShell.dataToSend.push(new createUserAwardCountObject(email_values[i], award_count_values[i]));
+                                        }
+                                        
+        
+                                        complete();
+                                    }
+                                }
+                            });
+
+                        }
+
+                    }
+
+                });
+
+            }
+
+        });
+
     }
 
 
@@ -415,27 +494,40 @@ module.exports = function(){
         }
     });
 
+    // Number of awards created by users CSV handler
+
     router.get('/getUserAwardCountCSV', isAdmin, function(req, res) {
-        var fields = ['car', 'price', 'color'];
-        var sampleData = [
-            {
-                "car": "Audi",
-                "price": 1,
-                "color": "blue"
-            },
-            {
-                "car": "BMW",
-                "price": 2,
-                "color": "black"
+        var callbackCount = 0;
+        var dataToSendShell = {};   // So changes persist
+        dataToSendShell.dataToSend = [];
+
+        const fields = ['user_email', 'award_creation_count'];
+        const opts = { fields };
+        const transformOpts = { highWaterMark: 8192 };
+        const asyncParser = new AsyncParser(opts, transformOpts);
+
+        var mysql = req.app.get('mysql');
+        getAwardCreationCountCSV(res, mysql, dataToSendShell, complete);
+
+        function complete() {
+            callbackCount++;
+            if (callbackCount >= 1) {
+                var formattedDataToSend = JSON.stringify(dataToSendShell.dataToSend);
+
+                let csv = '';
+                asyncParser.processor
+                .on('data', chunk => csv += chunk.toString())
+                .on('end', () => {
+                    res.setHeader('Content-disposition', 'attachment; filename=awards_created_by_users.csv');
+                    res.set('Content-Type', 'text/csv');
+                    res.status(200).send(csv);
+                })
+                .on('error', err => console.error(err));
+
+                asyncParser.input.push(formattedDataToSend);
+                asyncParser.input.push(null);
             }
-        ];
-
-        const json2csvParser = new Parser({fields});
-        const csv = json2csvParser.parse(sampleData);
-
-        res.setHeader('Content-disposition', 'attachment; filename=sample.csv');
-        res.set('Content-Type', 'text/csv');
-        res.status(200).send(csv);
+        }
 
     });
 
