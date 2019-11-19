@@ -113,7 +113,7 @@ module.exports = function () {
         \\Huge Congratulations
         
         \\section*{${data[2]}}
-        \\normalsize Has been presented with the following awared:\\\\
+        \\normalsize Has been presented with the following award:\\\\
         \\vspace{15mm}
         \\LARGE ${results2[0].award_type}
         \\vspace{5mm}
