@@ -4,7 +4,6 @@ module.exports = function(){
 
     var Chart = require('chart.js');
 
-    //const { Parser } = require('json2csv');
     const { AsyncParser } = require('json2csv');
 
     var isAdmin = require('../../adminCheck.js');
@@ -257,7 +256,6 @@ module.exports = function(){
                         var numQueriesDone = 0;
                         var numQueriesNeeded = xAxisValues.length;
 
-                        //var locationToAdd = 0;
 
                         for(item of results){
                             var inserts = [item.id];
@@ -322,7 +320,6 @@ module.exports = function(){
                     }
                 }
 
-                //console.log(xAxisValues);
 
                 // Now we need the number of each award type in the database
 
@@ -473,9 +470,6 @@ module.exports = function(){
             }
         }
 
-        //var dataToSend = {"xAxis": ["user1", "user2", "user3", "user4", "user5", "user6"]};
-        //var formattedDataToSend = JSON.stringify(dataToSend);
-        //res.send(formattedDataToSend);
     });
 
 
