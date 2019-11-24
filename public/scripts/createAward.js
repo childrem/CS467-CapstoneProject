@@ -160,10 +160,11 @@ module.exports = function () {
             console.log(err);
           } else {
             console.log('File is downloaded');
+            
           }
-
+          resolve(filename);
         });
-        resolve(filename);
+        
 
       });
     })
