@@ -9,6 +9,8 @@ module.exports = function () {
   var mysql2 = require('../../dbcon.js');
   const path = __basedir;
   const latex = require('node-latex')
+  var dateFormat = require('dateformat');
+  const Verifier = require("email-verifier");
 
   cloudinary.config({
     cloud_name: 'hxtcblmbp',
@@ -20,10 +22,10 @@ module.exports = function () {
   const downloadFile = (url, dest, callback) => {
     console.log("starting download");
     const file = fs.createWriteStream(dest);
-    file.on('error', function(err) {
+    file.on('error', function (err) {
       console.log(err);
       file.end();
-  });
+    });
     const req = https.get(url, (res) => {
 
       if (res.statusCode !== 200) {
@@ -51,7 +53,7 @@ module.exports = function () {
 
   }
 
-//generate the pdf
+  //generate the pdf
   async function GetPDF(inputFileName, outputFileName) {
     return new Promise(resolve => {
       const input = fs.createReadStream(inputFileName)
@@ -65,12 +67,12 @@ module.exports = function () {
       output.on('finish', resolve);
     })
   }
-//wrtie the file locally
+  //wrtie the file locally
   async function createInputFile(inputFileName, doc) {
     fs.writeFileSync(inputFileName, doc);
 
   }
-//get the number for unique pdf file name
+  //get the number for unique pdf file name
   async function getNumberOfUserAwards(recipient_email) {
 
     return new Promise(resolve => {
@@ -85,7 +87,7 @@ module.exports = function () {
       });
     })
   }
-//create the tex file
+  //create the tex file
   async function generateDocString(data, tempFile) {
     //type
     //get type of award
@@ -101,10 +103,8 @@ module.exports = function () {
           }
           var tempFileAlt = tempFile.replace(/\\/g, "/");
           var date = new Date(data[4]);
-          const monthNames = ["January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
-          ];
-          var newDate = monthNames[date.getMonth()] + " " + date.getDay() + ", " + date.getYear();
+
+          var newDate = dateFormat(date, "dddd, mmmm dS, yyyy, h:MM:ss TT");
           const test = `\\documentclass{article}
         \\usepackage{graphicx}
         \\pagenumbering{gobble}
@@ -125,7 +125,7 @@ module.exports = function () {
         \\end{center}
         
         \\begin{flushright}
-        \\vspace{25mm}
+        \\vspace{15mm}
         \\includegraphics{${tempFileAlt}}
         \\end{flushright}
         
@@ -141,7 +141,7 @@ module.exports = function () {
     })
   }
 
-//get the signature file of the user
+  //get the signature file of the user
   async function downloadUserSig(user_id) {
     return new Promise(resolve => {
 
@@ -150,6 +150,9 @@ module.exports = function () {
 
         }
         var url = results[0].signature_path;
+        if (url === null || url === "") {
+          resolve(null);
+        }
         var extension = url.substring(url.lastIndexOf("."), url.length);
         var filename = path + "/Temp/" + "tempSig_" + user_id + extension;
         downloadFile(url, filename, (err) => {
@@ -166,7 +169,7 @@ module.exports = function () {
     })
 
   }
-//generate the doc; upload; and send mail
+  //generate the doc; upload; and send mail
   async function createDocument(data) {
     //download user sig
     var tempFile = await downloadUserSig(data[0]);
@@ -221,7 +224,7 @@ module.exports = function () {
 
   }
 
-  
+
   function getAwardTypes(res, mysql, context, complete) {
     mysql.pool.query("SELECT id, award_type FROM award_types;", function (error, results, fields) {
       if (error) {
@@ -244,7 +247,7 @@ module.exports = function () {
         res.end();
       }
       createDocument(inserts);
-     
+
 
       complete();
     })
@@ -265,17 +268,77 @@ module.exports = function () {
   });
 
 
-  router.post('/', isGeneral, function (req, res) {
-    let mysql = req.app.get('mysql');
+  router.post('/', isGeneral, async function (req, res) {
+    let context = {};
+    req.session.errorMessage = "";
+
     let callbackCount = 0;
-    postAward(req, res, mysql, complete);
-    function complete() {
-      callbackCount++;
-      if (callbackCount >= 1) {
-        res.redirect('/userHome');
+    const isValid = await validateData(req);
+    if (isValid) {
+      var mysql = req.app.get('mysql');
+      postAward(req, res, mysql, complete);
+      function complete() {
+        callbackCount++;
+        if (callbackCount >= 1) {
+          res.redirect('/userHome');
+        }
       }
     }
+    else {
+      let mysql = req.app.get('mysql');
+      context.types = await getAwardTypesAsync(res, mysql, context, complete);
+      context.userPage = true;
+      context.errorText = req.session.errorMessage;
+      res.render('createAward', context);
+      delete req.session.errorText;
+    }
+
   });
+
+  async function getAwardTypesAsync(res, mysql, context) {
+    return new Promise(resolve => {
+      mysql.pool.query("SELECT id, award_type FROM award_types;", function (error, results, fields) {
+        if (error) {
+          res.write(JSON.stringify(error));
+          res.end();
+        }
+
+        resolve(results);
+
+      });
+    });
+  }
+
+  async function validateData(req) {
+    return new Promise(resolve => {
+      let verifier = new Verifier("at_l8554Tho4csZodAebUyo96AOpLnrQ");
+      verifier.verify(req.body.email, (err, data) => {
+        if (err) return false;
+        //console.log(data);
+        if (data.dnsCheck === "true" && data.smtpCheck === "true" && data.formatCheck === "true") {
+          mysql2.pool.query("SELECT Distinct signature_path FROM users where users.id = ?", [req.session.user_id], function (error, results, fields) {
+            if (error) {
+              req.session.errorMessage += "\nError checking signature path.";
+            }
+            var url = results[0].signature_path;
+            if (url === null || url === "") {
+              req.session.errorMessage += "\nUser doesn't have signature path.";
+            }
+
+          });
+        }
+        else {
+          req.session.errorMessage += "\nInvalid email address.";
+        }
+        if (req.session.errorMessage === "") {
+          resolve(true);
+        }
+        else {
+          resolve(false);
+        }
+      });
+    });
+  }
 
   return router;
 }();

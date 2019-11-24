@@ -52,6 +52,7 @@ app.use('/currentEmployeeWeek', require('./public/scripts/currentEmployeeWeek.js
 app.use('/currentEmployeeMonth', require('./public/scripts/currentEmployeeMonth.js'));
 app.use('/currentEmployeeYear', require('./public/scripts/currentEmployeeYear.js'));
 app.use('/forgotPassword', require('./public/scripts/forgotPassword.js'));
+app.use('/unauthorized', require('./public/scripts/unauthorized.js'));
 
 
 
@@ -107,7 +108,7 @@ app.post('/login', function (req, res) {
           switch (rows[0].role) {
             case "general":
               if (rows[0].signature_path === null || rows[0].signature_path === "") {
-                res.redirect('/editUserInfo');
+                res.redirect('/editUserSig');
               }
               else{
                 res.redirect('/userHome');

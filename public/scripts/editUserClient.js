@@ -16,7 +16,7 @@ $(document).ready(function(){
       formData.append('sig',tempData);
       $.ajax({
         type: 'POST',
-        url: '/editUserInfo',
+        url: '/editUserSig',
         data: formData,
         processData: false,
         contentType: false

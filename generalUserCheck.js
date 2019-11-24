@@ -4,6 +4,6 @@ module.exports = function isGeneralUser(req, res, next) {
     next();
   } else {
     // return unauthorized
-    res.send(401, "Unauthorized");
+    res.redirect('unauthorized');
   }
 };
