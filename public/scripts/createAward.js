@@ -203,7 +203,7 @@ module.exports = function () {
       var url = image.secure_url;
       var mailOptions = {
         from: 'cchincinfo@gmail.com', // sender address
-        to: 'eric.croom@gmail.com', // list of receivers
+        to: data[3], // list of receivers
         subject: "CCH Awards: Congratulations on your award!", // Subject line
         html: "<p>You have been granted an award! View the attached PDF for details.</p><br/><p>You can also access your award at <a href='" + url + "' >Click Here</a></p>",// plain text body
         attachments: [
