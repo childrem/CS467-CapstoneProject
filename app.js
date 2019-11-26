@@ -47,10 +47,7 @@ app.use('/editUserInfo', require('./public/scripts/editUserInfo.js'));
 app.use('/editUserSig', require('./public/scripts/editUserSig.js'));
 app.use('/createAward', require('./public/scripts/createAward.js'));
 app.use('/awards', require('./public/scripts/awards.js'));
-app.use('/addAwardCategory', require('./public/scripts/addAwardCategory.js'));
-app.use('/currentEmployeeWeek', require('./public/scripts/currentEmployeeWeek.js'));
-app.use('/currentEmployeeMonth', require('./public/scripts/currentEmployeeMonth.js'));
-app.use('/currentEmployeeYear', require('./public/scripts/currentEmployeeYear.js'));
+app.use('/currentTopEmployees', require('./public/scripts/currentTopEmployees.js'));
 app.use('/forgotPassword', require('./public/scripts/forgotPassword.js'));
 app.use('/unauthorized', require('./public/scripts/unauthorized.js'));
 
