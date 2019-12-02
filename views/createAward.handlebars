@@ -8,7 +8,7 @@
     <form id="createAward" action="/createAward" method="POST">
         <div class="form-group">
             <label for="type">Award Type</label>
-            <select name="type" id="type">
+            <select class="form-control" name="type" id="type">
 				{{#each types}}
 				<option value="{{id}}">{{award_type}}</option>
 				{{/each}}

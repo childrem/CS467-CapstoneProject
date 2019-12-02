@@ -58,7 +58,7 @@ module.exports = function () {
 
             let context = {};
             context.userPage = true;
-            res.render('editUserSig', context);
+            res.render('userHome', context);
 
           });
         }
