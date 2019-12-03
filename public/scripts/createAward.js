@@ -316,7 +316,7 @@ module.exports = function () {
       verifier.verify(req.body.email, (err, data) => {
         if (err) return false;
         //console.log(data);
-        if (data.dnsCheck === "true" && data.smtpCheck === "true" && data.formatCheck === "true") {
+        if (data.dnsCheck === "true" && data.formatCheck === "true") {
           mysql2.pool.query("SELECT Distinct signature_path FROM users where users.id = ?", [req.session.user_id], function (error, results, fields) {
             if (error) {
               req.session.errorMessage += "\nError checking signature path.";

@@ -20,6 +20,8 @@ $(document).ready(function(){
         data: formData,
         processData: false,
         contentType: false
+      }).done(function() {
+        window.location.href = '/userHome';
       });
   });
 
