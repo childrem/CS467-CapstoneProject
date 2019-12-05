@@ -26,8 +26,12 @@ module.exports = function(){
         var inserts = [req.body.Email, req.body.id];
         sql = mysql.pool.query(sql, inserts, function(error, results, fields) {
             if(error){
-                res.write(JSON.stringify(error));
-                res.status(400).end();
+              let context = {};
+              context.userPage = true;
+              req.session.errorMessage += "\nInvalid User Entry.";
+              context.errorText = req.session.errorMessage;
+              res.render('editAdmin', context);
+              delete req.session.errorText;
             }
 
             else {
