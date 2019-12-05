@@ -9,6 +9,7 @@ module.exports = function () {
   let upload = multer({ storage: multer.memoryStorage() }).single('sig');
   const path = __basedir;
 
+  //cloudinary setup
   cloudinary.config({
     cloud_name: 'hxtcblmbp',
     api_key: '497354259889361',

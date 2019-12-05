@@ -12,12 +12,13 @@ module.exports = function () {
   var dateFormat = require('dateformat');
   const Verifier = require("email-verifier");
 
+  //Cloudinary setup
   cloudinary.config({
     cloud_name: 'hxtcblmbp',
     api_key: '497354259889361',
     api_secret: 'BAqhQC6iUvwXi-Jr46q_2nPHu_4'
   });
-
+  //Download the user signature file.  Modified From:
   //https://repl.it/@lordproud/Downloading-file-in-nodejs
   const downloadFile = (url, dest, callback) => {
     console.log("starting download");
@@ -89,9 +90,7 @@ module.exports = function () {
   }
   //create the tex file
   async function generateDocString(data, tempFile) {
-    //type
-    //get type of award
-    //get sig
+
     return new Promise(resolve => {
       mysql2.pool.query("SELECT user_name  FROM users where users.id = ?", [data[0]], function (error, results, fields) {
         if (error) {
@@ -225,7 +224,7 @@ module.exports = function () {
 
   }
 
-
+  //get the different types of awards
   function getAwardTypes(res, mysql, context, complete) {
     mysql.pool.query("SELECT id, award_type FROM award_types;", function (error, results, fields) {
       if (error) {
@@ -238,6 +237,7 @@ module.exports = function () {
     });
   }
 
+  //save an award record and create and send the document
   function postAward(req, res, mysql, complete) {
     let date = new Date().toISOString().slice(0, 19).replace('T', ' ');
     let inputDate = req.body.date + " " + req.body.time + ":00";
@@ -296,6 +296,7 @@ module.exports = function () {
 
   });
 
+  //function to get award types with the ability to wait on the response
   async function getAwardTypesAsync(res, mysql, context) {
     return new Promise(resolve => {
       mysql.pool.query("SELECT id, award_type FROM award_types;", function (error, results, fields) {
@@ -310,13 +311,19 @@ module.exports = function () {
     });
   }
 
+  //validate the reciepient email as well as the existence of the signature path
+  //modified from documentation:  https://www.npmjs.com/package/email-verifier
   async function validateData(req) {
     return new Promise(resolve => {
       let verifier = new Verifier("at_l8554Tho4csZodAebUyo96AOpLnrQ");
+      //validate the email
       verifier.verify(req.body.email, (err, data) => {
-        if (err) return false;
-        //console.log(data);
+        if (err) {
+          req.session.errorMessage += "\nError Processing the email.";
+          resolve(false);
+        }
         if (data.dnsCheck === "true" && data.formatCheck === "true") {
+          //validate the sig path
           mysql2.pool.query("SELECT Distinct signature_path FROM users where users.id = ?", [req.session.user_id], function (error, results, fields) {
             if (error) {
               req.session.errorMessage += "\nError checking signature path.";

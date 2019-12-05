@@ -25,6 +25,7 @@ $(document).ready(function(){
       });
   });
 
+  //The statements below were modified from the following:
   //https://webplatform.github.io/docs/concepts/programming/drawing_images_onto_canvas/
    // Get a reference to the file select input field
    var sigFile = document.getElementById('sig-file');
