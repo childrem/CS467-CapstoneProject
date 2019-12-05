@@ -29,12 +29,11 @@ module.exports = function(){
         var inserts = [req.body.Email, req.body.user_name, req.body.id];
         sql = mysql.pool.query(sql, inserts, function(error, results, fields) {
             if(error) {
-              let context = {};
-              context.adminPage = true;
+             
               req.session.errorMessage += "\nInvalid User Entry.";
-              context.errorText = req.session.errorMessage;
-              res.render('editGeneralUserAdminSite', context);
-              req.session.errorMessage = "";
+              
+              res.redirect('editGeneralUserAdminSite/' + req.body.id);
+              
             }
 
             else {
@@ -50,12 +49,14 @@ module.exports = function(){
         let context = {};
         context.adminPage = true;
         context.id = req.params.id;     // Stored in a hidden input field, used later in edit process
+        context.errorText = req.session.errorMessage;
         var mysql = req.app.get('mysql');
         getAccountInfo(req, res, mysql, context, complete);
         function complete(){    // Each "setup" function calls this function to signal that it is finished
             callbackCount++;
             if(callbackCount >= 1){
                 res.render('editGeneralUserAdminSite', context);  // Only render when context is all setup
+                req.session.errorMessage = "";
             }
         }
     });
