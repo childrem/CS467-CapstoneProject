@@ -30,7 +30,7 @@ module.exports = function(){
         sql = mysql.pool.query(sql, inserts, function(error, results, fields) {
             if(error) {
               let context = {};
-              context.userPage = true;
+              context.adminPage = true;
               req.session.errorMessage += "\nInvalid User Entry.";
               context.errorText = req.session.errorMessage;
               res.render('editAdmin', context);
