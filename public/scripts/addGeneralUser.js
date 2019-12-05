@@ -28,7 +28,7 @@ module.exports = function () {
             req.session.errorMessage += "\nInvalid User Entry.";
             context.errorText = req.session.errorMessage;
             res.render('addGeneralUser', context);
-            delete req.session.errorText;
+            delete req.session.errorMessage;
           }
 
           else {
