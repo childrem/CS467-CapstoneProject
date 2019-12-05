@@ -33,8 +33,8 @@ module.exports = function(){
               context.adminPage = true;
               req.session.errorMessage += "\nInvalid User Entry.";
               context.errorText = req.session.errorMessage;
-              res.render('editAdmin', context);
-              delete req.session.errorMessage;
+              res.render('editGeneralUserAdminSite', context);
+              req.session.errorMessage = "";
             }
 
             else {

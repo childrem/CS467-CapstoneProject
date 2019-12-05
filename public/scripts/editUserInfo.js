@@ -30,7 +30,7 @@ module.exports = function () {
         req.session.errorMessage += "\nInvalid User Entry.";
         context.errorText = req.session.errorMessage;
         res.render('editUserInfo', context);
-        delete req.session.errorMessage;
+        req.session.errorMessage = "";
       }
       else {
         complete();
